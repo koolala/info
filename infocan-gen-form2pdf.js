@@ -4,7 +4,7 @@ import { html, LitElement } from 'https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit
 //import html2canvas from 'https://cdnjs.cloudflare.com/ajax/libs/html2canvas/0.4.1/html2canvas.min.js';
 //import html2pdf from 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
 
-import { html2pdf } from 'https://github.com/eKoopmans/html2pdf.js/blob/main/dist/html2pdf.bundle.min.js';
+import html2pdf from 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
 
 
 export class GenForm2PDF extends LitElement {

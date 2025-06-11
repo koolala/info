@@ -131,17 +131,25 @@ export class GenForm2PDF extends LitElement {
             //filename:     'myfile.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+            useCORS: true
         };
 
+        let pdfData = "";
         //# Test Mode
         //html2pdf().set(opt).from(element).save('my-pdf.pdf');
-        var pdf = await html2pdf().set(opt).from(element).outputPdf();
+        await html2pdf().set(opt).from(element).outputPdf().then(function(pdf) {
+            pdfData = btoa(pdf);
+        }, function() {
+            pdfData = "";
+        });
 
+        this._processingPDF = false;
+        this.value = pdfData;
+        
         // This logs the right base64
         //console.log(btoa(pdf));
-        const pdfData = btoa(pdf);
-        this.value = pdfData;
+        
 
         console.log("PDF generated");
         
@@ -149,7 +157,6 @@ export class GenForm2PDF extends LitElement {
             data: pdfData
         });
         
-        this._processingPDF = true;
     }
 
 

@@ -15,12 +15,7 @@ export class GenForm2PDF extends LitElement {
             //attribute: false
         },
         dirtyText: {
-            type: String, 
-            //attribute: false,
-            hasChanged(newVal, oldVal) {
-                //return newVal?.toLowerCase() !== oldVal?.toLowerCase();
-                return newVal !== oldVal;
-            }
+            type: String
         }
     };
     
@@ -41,16 +36,11 @@ export class GenForm2PDF extends LitElement {
 
 
     connectedCallback() {
-        console.log("connectedCallback..start");
-       
-        //this.dirtyText = Date.now().toString();
-        
-        console.log("connectedCallback..middle");
 
-        super.connectedCallback();
+        if (this._processingPDF == false && this._processingPDF2 == false) {
+            super.connectedCallback();
+        }
 
-        console.log("connectedCallback..end")
-        //GenForm2PDF.loadCustomLibrarys();
     }
 
     // createRenderRoot() {        
@@ -72,7 +62,7 @@ export class GenForm2PDF extends LitElement {
         console.log("requestUpdate");
 
         //this.dirtyText = Date.now().toString();
-        if (this._processingPDF == false) {
+        if (this._processingPDF == false && this._processingPDF2 == false) {
             super.requestUpdate();
         }
         
@@ -101,10 +91,9 @@ export class GenForm2PDF extends LitElement {
             //this.value = '';
             await this._generatePDF();
         
-            super.willUpdate();
         }
 
-
+        //super.willUpdate();
     }
 
 
@@ -165,13 +154,18 @@ export class GenForm2PDF extends LitElement {
         let pdfData = "";
         //# Test Mode
         //html2pdf().set(opt).from(element).save('my-pdf.pdf');
+        this._processingPDF2 = true;
+
         await html2pdf().set(opt).from(element).outputPdf().then(function(pdf) {
             pdfData = btoa(pdf);
         }, function() {
             pdfData = "";
         });
 
-        this._processingPDF = false;
+        this._processingPDF2 = false;
+
+        
+        //this._processingPDF = false;
 
         console.log("PDF generated");
         

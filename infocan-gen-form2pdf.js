@@ -40,24 +40,21 @@ export class GenForm2PDF extends LitElement {
         const root = super.createRenderRoot();
 
         console.log("createRenderRoot");
-        GenForm2PDF.loadCustomLibrarys();
 
         return root;
     }
 
+
     firstUpdated() {
         console.log("firstUpdated");
+        GenForm2PDF.loadCustomLibrarys();
+
     }
 
     requestUpdate() {
         console.log("requestUpdate");
-
-        //this.pdfFileBase64 == '' && 
-        if (this._processingPDF == false) {
-            this._processingPDF = true;
-            this._generatePDF();
-            this._processingPDF = false;
-        }
+ 
+        this._generatePDF();
     }
 
     shouldUpdate(changedProperties) {
@@ -103,21 +100,24 @@ export class GenForm2PDF extends LitElement {
                 }
             };
             scp.src = cdn;
-            document.body.appendChild(scp);
+            //document.body.appendChild(scp);
+            document.body.append(scp);
 
         }
     }
 
     async _generatePDF() {
+        if (this._processingPDF == true) return;
+        this._processingPDF = true;
+
+
         const element = document.querySelector("div.nx-form.form");
 
         console.log("generatePDF");
         if (window.html2pdf == null || element == null) {
             console.error("html2pdf.js not loaded or element not found");
                 
-            this._handleChange({
-                data: ""
-            });
+            this._processingPDF = false;
             return;
         }
 
@@ -140,10 +140,12 @@ export class GenForm2PDF extends LitElement {
         this.pdfFileBase64 = pdfData;
 
         console.log("PDF generated");
-
+        
         this._handleChange({
             data: pdfData
         });
+        
+        this._processingPDF = true;
     }
 
 
@@ -158,7 +160,6 @@ export class GenForm2PDF extends LitElement {
 
         const event = new CustomEvent('ntx-value-change', args);
         this.dispatchEvent(event);
-
     }
 
     static getMetaConfig() {

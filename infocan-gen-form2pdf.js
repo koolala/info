@@ -3,8 +3,9 @@ import { html, LitElement } from 'https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit
 export class GenForm2PDF extends LitElement {
     static properties = {
         margin: { type: String },
-        value: { type: String,
-            attribute: false,
+        value: { 
+            type: String,
+            //attribute: false,
             hasChanged(newVal, oldVal) {
                 //return newVal?.toLowerCase() !== oldVal?.toLowerCase();
                 return newVal !== oldVal;
@@ -73,7 +74,8 @@ export class GenForm2PDF extends LitElement {
 
     shouldUpdate(changedProperties) {
         // Only update element if prop1 changed.
-        //return changedProperties.has('dirtyText');
+        return changedProperties.has('dirtyText');
+
         //if (changedProperties.size==0) return false;
         return this._processingPDF == false && this.dirtyText != '';
         //return true;
@@ -170,7 +172,8 @@ export class GenForm2PDF extends LitElement {
             data: pdfData
         });
 
-        
+        this.value = pdfData;
+
         this._processingPDF2 = false;
         this._processingPDF = false;
     }

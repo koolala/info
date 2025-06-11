@@ -33,6 +33,8 @@ export class GenForm2PDF extends LitElement {
         console.log("connectedCallback");
 
         super.connectedCallback();
+
+        this._generatePDF();
     }
 
     createRenderRoot() {        
@@ -56,9 +58,8 @@ export class GenForm2PDF extends LitElement {
     requestUpdate() {
         console.log("requestUpdate");
 
-        GenForm2PDF.loadCustomLibrarys();
- 
-        this._generatePDF();
+        //GenForm2PDF.loadCustomLibrarys();
+        //this._generatePDF();
     }
 
     shouldUpdate(changedProperties) {
@@ -150,12 +151,11 @@ export class GenForm2PDF extends LitElement {
         // This logs the right base64
         //console.log(btoa(pdf));
         
-
         console.log("PDF generated");
         
-        this._handleChange({
-            data: pdfData
-        });
+        //this._handleChange({
+        //    data: pdfData
+        //});
         
     }
 

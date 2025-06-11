@@ -4,14 +4,19 @@ export class GenForm2PDF extends LitElement {
     static properties = {
         margin: { type: String },
         value: { type: String,
+            attribute: false,
             hasChanged(newVal, oldVal) {
                 //return newVal?.toLowerCase() !== oldVal?.toLowerCase();
                 return newVal !== oldVal;
             }
         },
-        encryptPassword: { type: String },
+        encryptPassword: { 
+            type: String
+            //attribute: false
+        },
         dirtyText: {
             type: String, 
+            //attribute: false,
             hasChanged(newVal, oldVal) {
                 //return newVal?.toLowerCase() !== oldVal?.toLowerCase();
                 return newVal !== oldVal;
@@ -38,7 +43,7 @@ export class GenForm2PDF extends LitElement {
     connectedCallback() {
         console.log("connectedCallback..start");
        
-        this.dirtyText = Date.now().toString();
+        //this.dirtyText = Date.now().toString();
         
         console.log("connectedCallback..middle");
 
@@ -66,7 +71,7 @@ export class GenForm2PDF extends LitElement {
     requestUpdate() {
         console.log("requestUpdate");
 
-        this.dirtyText = Date.now().toString();
+        //this.dirtyText = Date.now().toString();
         
         //GenForm2PDF.loadCustomLibrarys();
         //this._generatePDF();
@@ -93,7 +98,6 @@ export class GenForm2PDF extends LitElement {
         // }
 
         await this._generatePDF();
-
     }
 
 
@@ -104,17 +108,18 @@ export class GenForm2PDF extends LitElement {
             //const cdn = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
             const cdn = "https://cdn.jsdelivr.net/gh/eKoopmans/html2pdf.js@0.10.3/dist/html2pdf.bundle.min.js";
 
-            var scp = document.createElement("script");
+            let scp = document.createElement("script");
             console.log("html2pdf.js loading from CDN: " + cdn);
             scp.onload = () => {
                 // Now you can use html2pdf
                 
-                if (window.html2pdf == null && require != null) {
+                if (window.html2pdf == null && window.require != null) {
                     window.html2pdf = require("html2pdf");
                 }
 
                 if (window.html2pdf == null) {
                     console.error("html2pdf.js not loaded");
+                    GenForm2PDF.librarysLoaded.html2pdf = true;
                 } else {
                     console.log("html2pdf.js loaded successfully");
                 }
@@ -130,7 +135,6 @@ export class GenForm2PDF extends LitElement {
         if (window.html2pdf == null) return;
         if (this._processingPDF == true) return;
         this._processingPDF = true;
-
 
         const element = document.querySelector("div.nx-form.form");
 
@@ -161,19 +165,13 @@ export class GenForm2PDF extends LitElement {
         });
 
         this._processingPDF = false;
-        this.value = pdfData;
-        
-        // This logs the right base64
-        //console.log(btoa(pdf));
-        
+
         console.log("PDF generated");
         
         this._handleChange({
             data: pdfData
         });
-        
     }
-
 
     _handleChange(e) {
         const args = {
@@ -225,7 +223,7 @@ export class GenForm2PDF extends LitElement {
     }
 
     render() {
-        return html`<p>...</p>`;
+        return html`<p><textarea disabled=true style='width:100%;height:120px;'>${this.value}</textarea></p>`;
     }
 }
 

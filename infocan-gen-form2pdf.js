@@ -23,6 +23,7 @@ export class GenForm2PDF extends LitElement {
         html2pdf: false
     }
 
+    
     constructor() {
         super();
 
@@ -36,14 +37,8 @@ export class GenForm2PDF extends LitElement {
 
     connectedCallback() {
         console.log("connectedCallback..start");
-
-        // if (this._timer) {
-        //     clearTimeout(this._timer);
-        // }
-
-        // this._timer = setTimeout(function() {
-        //     this._generatePDF();
-        // }, 200);
+       
+        this.dirtyText = Date.now().toString();
         
         console.log("connectedCallback..middle");
 
@@ -63,26 +58,28 @@ export class GenForm2PDF extends LitElement {
         
         console.log("firstUpdated");
         await new Promise((r) => setTimeout(r, 0));
+
         GenForm2PDF.loadCustomLibrarys();
         //super.firstUpdated();
     }
 
-
     requestUpdate() {
         console.log("requestUpdate");
 
-        GenForm2PDF.loadCustomLibrarys();
+        this.dirtyText = Date.now().toString();
+        
+        //GenForm2PDF.loadCustomLibrarys();
         //this._generatePDF();
     }
 
     shouldUpdate(changedProperties) {
         // Only update element if prop1 changed.
         //return changedProperties.has('dirtyText');
-        return this._processingPDF == false && this.dirtyText
+        return this._processingPDF == false && this.dirtyText != '';
         //return true;
     }
 
-    willUpdate(changedProperties) {
+    async willUpdate(changedProperties) {
         // only need to check changed properties for an expensive computation.
         //if (changedProperties.has('firstName') || changedProperties.has('lastName')) {
         //    this.sha = computeSHA(`${this.firstName} ${this.lastName}`);
@@ -95,7 +92,7 @@ export class GenForm2PDF extends LitElement {
         //     this.value = '';
         // }
 
-        this._generatePDF();
+        await this._generatePDF();
 
     }
 
@@ -171,9 +168,9 @@ export class GenForm2PDF extends LitElement {
         
         console.log("PDF generated");
         
-        //this._handleChange({
-        //    data: pdfData
-        //});
+        this._handleChange({
+            data: pdfData
+        });
         
     }
 

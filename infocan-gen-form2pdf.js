@@ -29,6 +29,17 @@ export class GenForm2PDF extends LitElement {
         console.log("connectedCallback");
     }
 
+    createRenderRoot() {        
+        const root = super.createRenderRoot();
+        
+        console.log("createRenderRoot");
+
+        //root.addEventListener('click', this._handleShadowClick);
+        GenForm2PDF.loadCustomLibrarys();
+        
+        return root;
+    }
+
 
     firstUpdated() {
 
@@ -42,8 +53,10 @@ export class GenForm2PDF extends LitElement {
         //this.pdfFileBase64=='' && 
         if (this._processingPDF == false) {
             this._processingPDF = true;
-            GenForm2PDF.loadCustomLibrarys();
+
+
             this.generatePDF();
+            this._processingPDF = false;
         }
     }
 
@@ -97,12 +110,11 @@ export class GenForm2PDF extends LitElement {
         }
     }
 
-    generatePDF() {
+    async generatePDF() {
         const _self = this;
         const element = document.querySelector("div.nx-form.form");
 
         console.log("generatePDF");
-
         if (window.html2pdf == null || element == null) {
             console.error("html2pdf.js not loaded or element not found");
             return;
@@ -118,19 +130,17 @@ export class GenForm2PDF extends LitElement {
 
         //# Test Mode
         //html2pdf().set(opt).from(element).save('my-pdf.pdf');
-        html2pdf().set(opt).from(element).outputPdf().then(function(pdf) {
-            // This logs the right base64
-            //console.log(btoa(pdf));
-            const pdfData = btoa(pdf);
-            _self.pdfFileBase64 = pdfData;
+        var pdf = await html2pdf().set(opt).from(element).outputPdf()
+        
+        // This logs the right base64
+        //console.log(btoa(pdf));
+        const pdfData = btoa(pdf);
+        _self.pdfFileBase64 = pdfData;
 
-            console.log("PDF generated");
+        console.log("PDF generated");
 
-            _self.onChange({
-                data: pdfData
-            });
-
-            _self._processingPDF = false;
+        _self.onChange({
+            data: pdfData
         });
 
     }

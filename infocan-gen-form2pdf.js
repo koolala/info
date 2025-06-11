@@ -3,7 +3,7 @@ import { html, LitElement } from 'https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit
 export class GenForm2PDF extends LitElement {
     static properties = {
         margin: { type: String },
-        pdfFileBase64: { type: String },
+        value: { type: String },
         encryptPassword: { type: String },
         dirtyText: {
             type: String, 
@@ -22,7 +22,7 @@ export class GenForm2PDF extends LitElement {
         super();
 
         this.margin = 0;
-        this.pdfFileBase64 = '';
+        this.value = '';
         this.encryptPassword = null;
         this.dirtyText = '';
         this._processingPDF = false;
@@ -76,7 +76,7 @@ export class GenForm2PDF extends LitElement {
         console.log("willUpdate");
 
         if (changedProperties.has('dirtyText')) {
-            this.pdfFileBase64 = '';
+            this.value = '';
         }
     }
 
@@ -111,6 +111,7 @@ export class GenForm2PDF extends LitElement {
     }
 
     async _generatePDF() {
+        if (window.html2pdf == null) return;
         if (this._processingPDF == true) return;
         this._processingPDF = true;
 
@@ -133,7 +134,6 @@ export class GenForm2PDF extends LitElement {
             jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
 
-
         //# Test Mode
         //html2pdf().set(opt).from(element).save('my-pdf.pdf');
         var pdf = await html2pdf().set(opt).from(element).outputPdf();
@@ -141,7 +141,7 @@ export class GenForm2PDF extends LitElement {
         // This logs the right base64
         //console.log(btoa(pdf));
         const pdfData = btoa(pdf);
-        this.pdfFileBase64 = pdfData;
+        this.value = pdfData;
 
         console.log("PDF generated");
         
@@ -159,7 +159,7 @@ export class GenForm2PDF extends LitElement {
             cancelable: false,
             composed: true,
             // value coming from input change event. 
-            pdfFileBase64: e.data,
+            value: e.data,
         };
 
         const event = new CustomEvent('ntx-value-change', args);
@@ -172,7 +172,7 @@ export class GenForm2PDF extends LitElement {
             fallbackDisableSubmit: true,
             version: '1.0',
             properties: {
-                pdfFileBase64: {
+                value: {
                     type: 'string',
                     title: 'PDF File Base64',
                     isValueField: true

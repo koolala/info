@@ -52,10 +52,10 @@ export class GenForm2PDF extends LitElement {
     requestUpdate() {
         console.log("requestUpdate");
 
-        if (this.pdfFileBase64 == '' && this._processingPDF == false) {
+        //this.pdfFileBase64 == '' && 
+        if (this._processingPDF == false) {
             this._processingPDF = true;
-
-            this.generatePDF();
+            this._generatePDF();
             this._processingPDF = false;
         }
     }
@@ -91,8 +91,7 @@ export class GenForm2PDF extends LitElement {
             console.log("html2pdf.js loading from CDN: " + cdn);
             scp.onload = () => {
                 // Now you can use html2pdf
-                //this.generatePDF();
-
+                
                 if (window.html2pdf == null && require != null) {
                     window.html2pdf = require("html2pdf");
                 }
@@ -110,17 +109,20 @@ export class GenForm2PDF extends LitElement {
     }
 
     async _generatePDF() {
-        const _self = this;
         const element = document.querySelector("div.nx-form.form");
 
         console.log("generatePDF");
         if (window.html2pdf == null || element == null) {
             console.error("html2pdf.js not loaded or element not found");
+                
+            this._handleChange({
+                data: ""
+            });
             return;
         }
 
         var opt = {
-            margin: _self.margin,
+            margin: this.margin,
             //filename:     'myfile.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
@@ -135,15 +137,14 @@ export class GenForm2PDF extends LitElement {
         // This logs the right base64
         //console.log(btoa(pdf));
         const pdfData = btoa(pdf);
-        _self.pdfFileBase64 = pdfData;
+        this.pdfFileBase64 = pdfData;
 
         console.log("PDF generated");
 
-        _self._handleChange({
+        this._handleChange({
             data: pdfData
         });
     }
-
 
 
     _handleChange(e) {
@@ -157,6 +158,7 @@ export class GenForm2PDF extends LitElement {
 
         const event = new CustomEvent('ntx-value-change', args);
         this.dispatchEvent(event);
+
     }
 
     static getMetaConfig() {

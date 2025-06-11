@@ -1,6 +1,6 @@
 import { html, LitElement } from 'https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js'
 //import { html2pdf } from 'https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js';
-import { html2pdf } from 'https://cdn.jsdelivr.net/gh/eKoopmans/html2pdf.js@0.10.3/dist/html2pdf.bundle.min.js';
+import html2pdf from 'https://cdn.jsdelivr.net/gh/eKoopmans/html2pdf.js@0.10.3/dist/html2pdf.bundle.min.js';
 
 export class GenForm2PDF extends LitElement {
     static properties = {
@@ -50,7 +50,7 @@ export class GenForm2PDF extends LitElement {
 
         console.log("firstUpdated");
         super.firstUpdated();
-        
+
         GenForm2PDF.loadCustomLibrarys();
 
     }

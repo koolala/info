@@ -3,7 +3,12 @@ import { html, LitElement } from 'https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit
 export class GenForm2PDF extends LitElement {
     static properties = {
         margin: { type: String },
-        value: { type: String },
+        value: { type: String,
+            hasChanged(newVal, oldVal) {
+                //return newVal?.toLowerCase() !== oldVal?.toLowerCase();
+                return newVal !== oldVal;
+            }
+        },
         encryptPassword: { type: String },
         dirtyText: {
             type: String, 
@@ -26,45 +31,55 @@ export class GenForm2PDF extends LitElement {
         this.encryptPassword = null;
         this.dirtyText = '';
         this._processingPDF = false;
-
     }
 
+
     connectedCallback() {
-        console.log("connectedCallback");
+        console.log("connectedCallback..start");
+
+        // if (this._timer) {
+        //     clearTimeout(this._timer);
+        // }
+
+        // this._timer = setTimeout(function() {
+        //     this._generatePDF();
+        // }, 200);
+        
+        console.log("connectedCallback..middle");
 
         super.connectedCallback();
 
-        this._generatePDF();
+        console.log("connectedCallback..end")
+        //GenForm2PDF.loadCustomLibrarys();
     }
 
-    createRenderRoot() {        
-        console.log("createRenderRoot");
+    // createRenderRoot() {        
+    //     console.log("createRenderRoot");
+    //     const root = super.createRenderRoot();
+    //     return root;
+    // }
 
-        const root = super.createRenderRoot();
-
-        return root;
-    }
-
-
-    firstUpdated() {
-
+    async firstUpdated() {
+        
         console.log("firstUpdated");
-        super.firstUpdated();
-
+        await new Promise((r) => setTimeout(r, 0));
         GenForm2PDF.loadCustomLibrarys();
-
+        //super.firstUpdated();
     }
+
 
     requestUpdate() {
         console.log("requestUpdate");
 
-        //GenForm2PDF.loadCustomLibrarys();
+        GenForm2PDF.loadCustomLibrarys();
         //this._generatePDF();
     }
 
     shouldUpdate(changedProperties) {
         // Only update element if prop1 changed.
-        return changedProperties.has('dirtyText');
+        //return changedProperties.has('dirtyText');
+        return this._processingPDF == false && this.dirtyText
+        //return true;
     }
 
     willUpdate(changedProperties) {
@@ -76,9 +91,12 @@ export class GenForm2PDF extends LitElement {
 
         console.log("willUpdate");
 
-        if (changedProperties.has('dirtyText')) {
-            this.value = '';
-        }
+        // if (changedProperties.has('dirtyText')) {
+        //     this.value = '';
+        // }
+
+        this._generatePDF();
+
     }
 
 
@@ -166,7 +184,7 @@ export class GenForm2PDF extends LitElement {
             cancelable: false,
             composed: true,
             // value coming from input change event. 
-            value: e.data,
+            detail: e.data,
         };
 
         const event = new CustomEvent('ntx-value-change', args);

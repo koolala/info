@@ -32,6 +32,7 @@ export class GenForm2PDF extends LitElement {
         this.encryptPassword = null;
         this.dirtyText = '';
         this._processingPDF = false;
+        this._processingPDF2 = false;
     }
 
 
@@ -162,16 +163,16 @@ export class GenForm2PDF extends LitElement {
             pdfData = "";
         });
 
-        this._processingPDF2 = false;
-
-        
-        //this._processingPDF = false;
 
         console.log("PDF generated");
         
         this._handleChange({
             data: pdfData
         });
+
+        
+        this._processingPDF2 = false;
+        this._processingPDF = false;
     }
 
     _handleChange(e) {

@@ -81,7 +81,10 @@ export class GenForm2PDF extends LitElement {
                 // Now you can use html2pdf
                 //this.generatePDF();
 
-                window.html2pdf = require("html2pdf");
+                if (window.html2pdf == null && require != null) {
+                    window.html2pdf = require("html2pdf");
+                }
+
                 if (window.html2pdf == null) {
                     console.error("html2pdf.js not loaded");
                 } else {

@@ -6,22 +6,29 @@ export class GenForm2PDF extends LitElement {
         margin: { type: String },
         pdfFileBase64: { type: String },
         encryptPassword: { type: String },
-        dirtyText: { type: String }
+        dirtyText: {
+            type: String, 
+            hasChanged(newVal, oldVal) {
+                //return newVal?.toLowerCase() !== oldVal?.toLowerCase();
+                return newVal !== oldVal;
+            }
+        }
     };
+    
     static librarysLoaded = {
         html2pdf: false
     }
 
     constructor() {
         super();
+
         this.margin = 0;
         this.pdfFileBase64 = '';
         this.encryptPassword = null;
         this.dirtyText = '';
-
         this._processingPDF = false;
-    }
 
+    }
 
     connectedCallback() {
         super.connectedCallback();
@@ -29,38 +36,35 @@ export class GenForm2PDF extends LitElement {
         console.log("connectedCallback");
     }
 
-    createRenderRoot() {        
+    createRenderRoot() {
         const root = super.createRenderRoot();
-        
-        console.log("createRenderRoot");
 
-        //root.addEventListener('click', this._handleShadowClick);
+        console.log("createRenderRoot");
         GenForm2PDF.loadCustomLibrarys();
-        
+
         return root;
     }
 
-
     firstUpdated() {
-
         console.log("firstUpdated");
-        
     }
 
     requestUpdate() {
         console.log("requestUpdate");
 
-        //this.pdfFileBase64=='' && 
-        if (this._processingPDF == false) {
+        if (this.pdfFileBase64 == '' && this._processingPDF == false) {
             this._processingPDF = true;
-
 
             this.generatePDF();
             this._processingPDF = false;
         }
     }
 
-    
+    shouldUpdate(changedProperties) {
+        // Only update element if prop1 changed.
+        return changedProperties.has('dirtyText');
+    }
+
     willUpdate(changedProperties) {
         // only need to check changed properties for an expensive computation.
         //if (changedProperties.has('firstName') || changedProperties.has('lastName')) {
@@ -71,25 +75,20 @@ export class GenForm2PDF extends LitElement {
         console.log("willUpdate");
 
         if (changedProperties.has('dirtyText')) {
-        //    this.pdfFileBase64 = '';       
+            this.pdfFileBase64 = '';
         }
-        
     }
 
-    static loadCustomLibrarys()  {
+
+    static loadCustomLibrarys() {
         if (window.html2pdf == null && GenForm2PDF.librarysLoaded.html2pdf == false) {
             GenForm2PDF.librarysLoaded.html2pdf = true;
 
-            const cdn = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
-            // if ($ && $.getScript != null) {
-            //     $.getScript(cdn);
-            // }
-            // else {
+            //const cdn = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
+            const cdn = "https://cdn.jsdelivr.net/gh/eKoopmans/html2pdf.js@0.10.3/dist/html2pdf.bundle.min.js";
 
-            // }
-    
             var scp = document.createElement("script");
-            console.log("html2pdf.js loading from CDN: " + cdn);                
+            console.log("html2pdf.js loading from CDN: " + cdn);
             scp.onload = () => {
                 // Now you can use html2pdf
                 //this.generatePDF();
@@ -106,11 +105,11 @@ export class GenForm2PDF extends LitElement {
             };
             scp.src = cdn;
             document.body.appendChild(scp);
-            
+
         }
     }
 
-    async generatePDF() {
+    async _generatePDF() {
         const _self = this;
         const element = document.querySelector("div.nx-form.form");
 
@@ -123,15 +122,16 @@ export class GenForm2PDF extends LitElement {
         var opt = {
             margin: _self.margin,
             //filename:     'myfile.pdf',
-            image:        { type: 'jpeg', quality: 0.98 },
-            html2canvas:  { scale: 2 },
-            jsPDF:        { unit: 'in', format: 'a4', orientation: 'portrait' }
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { scale: 2 },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' }
         };
+
 
         //# Test Mode
         //html2pdf().set(opt).from(element).save('my-pdf.pdf');
-        var pdf = await html2pdf().set(opt).from(element).outputPdf()
-        
+        var pdf = await html2pdf().set(opt).from(element).outputPdf();
+
         // This logs the right base64
         //console.log(btoa(pdf));
         const pdfData = btoa(pdf);
@@ -139,13 +139,14 @@ export class GenForm2PDF extends LitElement {
 
         console.log("PDF generated");
 
-        _self.onChange({
+        _self._handleChange({
             data: pdfData
         });
-
     }
 
-    onChange(e) {
+
+
+    _handleChange(e) {
         const args = {
             bubbles: true,
             cancelable: false,

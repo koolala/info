@@ -39,7 +39,8 @@ export class GenForm2PDF extends LitElement {
     requestUpdate() {
         console.log("requestUpdate");
 
-        if (this.pdfFileBase64=='' && this._processingPDF == false) {
+        //this.pdfFileBase64=='' && 
+        if (this._processingPDF == false) {
             this._processingPDF = true;
             GenForm2PDF.loadCustomLibrarys();
             this.generatePDF();
@@ -57,7 +58,7 @@ export class GenForm2PDF extends LitElement {
         console.log("willUpdate");
 
         if (changedProperties.has('dirtyText')) {
-            this.pdfFileBase64 = '';       
+        //    this.pdfFileBase64 = '';       
         }
         
     }
@@ -117,16 +118,16 @@ export class GenForm2PDF extends LitElement {
         html2pdf().set(opt).from(element).outputPdf().then(function(pdf) {
             // This logs the right base64
             //console.log(btoa(pdf));
-            _self.pdfFileBase64 = btoa(pdf);
-            _self._processingPDF = false;
+            const pdfData = btoa(pdf);
+            _self.pdfFileBase64 = pdfData;
 
             console.log("PDF generated");
 
-
-
             _self.onChange({
-                data: btoa(pdf)
+                data: pdfData
             });
+
+            _self._processingPDF = false;
         });
 
     }

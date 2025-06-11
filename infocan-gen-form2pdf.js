@@ -72,7 +72,9 @@ export class GenForm2PDF extends LitElement {
         console.log("requestUpdate");
 
         //this.dirtyText = Date.now().toString();
-        super.requestUpdate();
+        if (this._processingPDF == false) {
+            super.requestUpdate();
+        }
         
         //GenForm2PDF.loadCustomLibrarys();
         //this._generatePDF();
@@ -94,11 +96,14 @@ export class GenForm2PDF extends LitElement {
         //if (changedProperties.has('firstName'))
 
         console.log("willUpdate");
-
-        if (changedProperties.has('dirtyText') && this._processingPDF == false) {
+        //changedProperties.has('dirtyText') && 
+        if (this._processingPDF == false) {
             //this.value = '';
             await this._generatePDF();
+        
+            super.willUpdate();
         }
+
 
     }
 

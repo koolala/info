@@ -65,10 +65,13 @@ export class GenForm2PDF extends LitElement {
             return;
         }
 
+        GenForm2PDF.loadCustomLibrarys();
+
+        //this._generatePDF();
+        //this._handleGeneratePDF();
+
         super.requestUpdate();
 
-        //GenForm2PDF.loadCustomLibrarys();
-        //this._generatePDF();
     }
 
     shouldUpdate(changedProperties) {
@@ -131,9 +134,10 @@ export class GenForm2PDF extends LitElement {
     }
 
     async _generatePDF() {
+        await this.updateComplete;
+        
         if (window.html2pdf == null) return;
         if (this._processingPDF == true) return;
-
         this._processingPDF = true;
 
         const element = document.querySelector("div.nx-form.form");

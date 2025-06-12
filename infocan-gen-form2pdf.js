@@ -2,18 +2,14 @@ import { html, LitElement } from 'https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit
 
 export class GenForm2PDF extends LitElement {
     static properties = {
-        margin: { type: String },
+        margin: { 
+            type: Number 
+        },
         value: { 
-            type: String,
-            //attribute: false,
-            hasChanged(newVal, oldVal) {
-                //return newVal?.toLowerCase() !== oldVal?.toLowerCase();
-                return newVal !== oldVal;
-            }
+            type: String
         },
         encryptPassword: { 
             type: String
-            //attribute: false
         },
         dirtyText: {
             type: String
@@ -39,10 +35,11 @@ export class GenForm2PDF extends LitElement {
 
     connectedCallback() {
 
-        if (this._processingPDF == false && this._processingPDF2 == false) {
-            super.connectedCallback();
+        if (this._processingPDF == true || this._processingPDF2 == true) {
+            return;
         }
 
+        super.connectedCallback();
     }
 
     // createRenderRoot() {        
@@ -56,7 +53,7 @@ export class GenForm2PDF extends LitElement {
         console.log("firstUpdated");
         await new Promise((r) => setTimeout(r, 0));
 
-        GenForm2PDF.loadCustomLibrarys();
+        //GenForm2PDF.loadCustomLibrarys();
         //super.firstUpdated();
     }
 
@@ -64,10 +61,12 @@ export class GenForm2PDF extends LitElement {
         console.log("requestUpdate");
 
         //this.dirtyText = Date.now().toString();
-        if (this._processingPDF == false && this._processingPDF2 == false) {
-            super.requestUpdate();
+        if (this._processingPDF == true || this._processingPDF2 == true) {
+            return;
         }
-        
+
+        super.requestUpdate();
+
         //GenForm2PDF.loadCustomLibrarys();
         //this._generatePDF();
     }
@@ -90,20 +89,21 @@ export class GenForm2PDF extends LitElement {
 
         console.log("willUpdate");
         //changedProperties.has('dirtyText') && 
-        if (this._processingPDF == false) {
+        if (this._processingPDF == true || this._processingPDF2 == true) {
             //this.value = '';
-            await this._generatePDF();
-        
+            return;
         }
 
-        //super.willUpdate();
+        await this._generatePDF();
     }
 
 
     static loadCustomLibrarys() {
+
         if (window.html2pdf == null && GenForm2PDF.librarysLoaded.html2pdf == false) {
             GenForm2PDF.librarysLoaded.html2pdf = true;
 
+            //const cdn = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.9.3/html2pdf.bundle.min.js";
             //const cdn = "https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js";
             const cdn = "https://cdn.jsdelivr.net/gh/eKoopmans/html2pdf.js@0.10.3/dist/html2pdf.bundle.min.js";
 
@@ -133,6 +133,7 @@ export class GenForm2PDF extends LitElement {
     async _generatePDF() {
         if (window.html2pdf == null) return;
         if (this._processingPDF == true) return;
+
         this._processingPDF = true;
 
         const element = document.querySelector("div.nx-form.form");
@@ -145,8 +146,9 @@ export class GenForm2PDF extends LitElement {
             return;
         }
 
+        //parseInt(this.margin) || 
         var opt = {
-            margin: this.margin,
+            margin: 0,
             //filename:     'myfile.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { scale: 2 },
@@ -159,20 +161,17 @@ export class GenForm2PDF extends LitElement {
         //html2pdf().set(opt).from(element).save('my-pdf.pdf');
         this._processingPDF2 = true;
 
-        await html2pdf().set(opt).from(element).outputPdf().then(function(pdf) {
-            pdfData = btoa(pdf);
-        }, function() {
-            pdfData = "";
-        });
+        let pdf = await html2pdf().set(opt).from(element).outputPdf();
 
+        //pdfData = btoa(pdf);
+        pdfData = pdf;
 
         console.log("PDF generated");
         
+        this.value = pdfData;
         this._handleChange({
             data: pdfData
         });
-
-        this.value = pdfData;
 
         this._processingPDF2 = false;
         this._processingPDF = false;

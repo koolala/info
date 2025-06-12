@@ -33,14 +33,13 @@ export class GenForm2PDF extends LitElement {
     }
 
 
-    connectedCallback() {
+    // connectedCallback() {
 
-        if (this._processingPDF == true || this._processingPDF2 == true) {
-            return;
-        }
+    //     if (this._processingPDF == true || this._processingPDF2 == true) {
+    //         return;
+    //     }
 
-        super.connectedCallback();
-    }
+    // }
 
     // createRenderRoot() {        
     //     console.log("createRenderRoot");
@@ -55,50 +54,60 @@ export class GenForm2PDF extends LitElement {
 
         //GenForm2PDF.loadCustomLibrarys();
         //super.firstUpdated();
-    }
-
-    requestUpdate() {
-        console.log("requestUpdate");
-
-        //this.dirtyText = Date.now().toString();
-        if (this._processingPDF == true || this._processingPDF2 == true) {
-            return;
-        }
-
         GenForm2PDF.loadCustomLibrarys();
 
-        //this._generatePDF();
-        //this._handleGeneratePDF();
-
-        super.requestUpdate();
+        //super.connectedCallback();
+        if (this._timer) clearTimeout(this._timer);
+        this._timer = setTimeout(() => {
+            if (this.dirtyText != '') {
+                this._generatePDF();
+            }
+        });
 
     }
 
-    shouldUpdate(changedProperties) {
-        // Only update element if prop1 changed.
-        return changedProperties.has('dirtyText');
+    // requestUpdate() {
+    //     console.log("requestUpdate");
 
-        //if (changedProperties.size==0) return false;
-        return this._processingPDF == false && this.dirtyText != '';
-        //return true;
-    }
+    //     //this.dirtyText = Date.now().toString();
+    //     if (this._processingPDF == true || this._processingPDF2 == true) {
+    //         return;
+    //     }
 
-    async willUpdate(changedProperties) {
-        // only need to check changed properties for an expensive computation.
-        //if (changedProperties.has('firstName') || changedProperties.has('lastName')) {
-        //    this.sha = computeSHA(`${this.firstName} ${this.lastName}`);
-        //}
-        //if (changedProperties.has('firstName'))
+    //     GenForm2PDF.loadCustomLibrarys();
 
-        console.log("willUpdate");
-        //changedProperties.has('dirtyText') && 
-        if (this._processingPDF == true || this._processingPDF2 == true) {
-            //this.value = '';
-            return;
-        }
+    //     //this._generatePDF();
+    //     //this._handleGeneratePDF();
 
-        await this._generatePDF();
-    }
+    //     super.requestUpdate();
+
+    // }
+
+    // shouldUpdate(changedProperties) {
+    //     // Only update element if prop1 changed.
+    //     return changedProperties.has('dirtyText');
+
+    //     //if (changedProperties.size==0) return false;
+    //     return this._processingPDF == false && this.dirtyText != '';
+    //     //return true;
+    // }
+
+    // async willUpdate(changedProperties) {
+    //     // only need to check changed properties for an expensive computation.
+    //     //if (changedProperties.has('firstName') || changedProperties.has('lastName')) {
+    //     //    this.sha = computeSHA(`${this.firstName} ${this.lastName}`);
+    //     //}
+    //     //if (changedProperties.has('firstName'))
+
+    //     console.log("willUpdate");
+    //     //changedProperties.has('dirtyText') && 
+    //     if (this._processingPDF == true || this._processingPDF2 == true) {
+    //         //this.value = '';
+    //         return;
+    //     }
+
+    //     //await this._generatePDF();
+    // }
 
 
     static loadCustomLibrarys() {
@@ -134,7 +143,7 @@ export class GenForm2PDF extends LitElement {
     }
 
     async _generatePDF() {
-        await this.updateComplete;
+        //await this.updateComplete;
         
         if (window.html2pdf == null) return;
         if (this._processingPDF == true) return;

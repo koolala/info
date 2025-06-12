@@ -32,16 +32,11 @@ export class GenForm2PDF extends LitElement {
             this.value = '';
             this.encryptPassword = null;
             this.dirtyText = '';
-            this._processingPDF = false;
-            this._processingPDF2 = false;
         }
     }
 
     connectedCallback() {
-        // if (this._processingPDF == true || this._processingPDF2 == true) {
-        //     return;
-        // }
-
+        
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
         super.connectedCallback();
     }
@@ -76,16 +71,6 @@ export class GenForm2PDF extends LitElement {
 
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
         // console.log("requestUpdate");
-
-        // //this.dirtyText = Date.now().toString();
-        // if (this._processingPDF == true || this._processingPDF2 == true) {
-        //     return;
-        // }
-
-        // GenForm2PDF.loadCustomLibrarys();
-
-        // //this._generatePDF();
-        // //this._handleGeneratePDF();
 
         super.requestUpdate();
     }
@@ -149,20 +134,37 @@ export class GenForm2PDF extends LitElement {
         }
     }
 
+
+    static downloadAsPDF(base64String) {
+        //var base64String = document.getElementById("Base64StringTxtBox").value;
+
+        if (base64String.startsWith("JVB")) {
+            base64String = "data:application/pdf;base64," + base64String;
+            downloadFileObject(base64String);
+        } else if (base64String.startsWith("data:application/pdf;base64")) {
+            downloadFileObject(base64String);
+        } else {
+            //alert("Not a valid Base64 PDF string. Please check");
+            console.error("Not a valid Base64 PDF string. Please check");
+        }
+    }
+
+
+    static downloadFileObject(base64String) {
+        const linkSource = base64String;
+        const downloadLink = document.createElement("a");
+        const fileName = "convertedPDFFile.pdf";
+        downloadLink.href = linkSource;
+        downloadLink.download = fileName;
+        downloadLink.click();
+    }
+
     async _generatePDF() {
         //await this.updateComplete;
         
-        if (window.html2pdf == null) return;
-        if (this._processingPDF == true) return;
-        this._processingPDF = true;
-
-        const element = document.querySelector("div.nx-form.form");
-
         console.log("generatePDF");
-        if (window.html2pdf == null || element == null) {
-            console.error("html2pdf.js not loaded or element not found");
-                
-            this._processingPDF = false;
+        if (window.html2pdf == null) {
+            console.error("html2pdf.js not loaded");
             return;
         }
 
@@ -176,18 +178,17 @@ export class GenForm2PDF extends LitElement {
             useCORS: true
         };
 
-        let pdfData = "";
-        //# Test Mode
-        //html2pdf().set(opt).from(element).save('my-pdf.pdf');
-        this._processingPDF2 = true;
-
         await this.updateComplete;
         GenForm2PDF.ignoreConstructed = true;
-        let pdf = await html2pdf().set(opt).from(element).outputPdf();
-        GenForm2PDF.ignoreConstructed = false;
 
-        //pdfData = btoa(pdf);
-        pdfData = pdf;
+        let cloneElement = document.querySelector("div.nx-form.form"); //.cloneNode(true);
+        cloneElement.querySelector("infocan-gen-form2pdf")?.remove();
+        let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf();
+        //cloneElement.remove();
+        cloneElement = null;
+
+        //let pdf = await html2pdf().set(opt).from(element).outputPdf();
+        GenForm2PDF.ignoreConstructed = false;
 
         console.log("PDF generated");
         
@@ -196,8 +197,6 @@ export class GenForm2PDF extends LitElement {
             data: pdfData
         });
 
-        this._processingPDF2 = false;
-        this._processingPDF = false;
     }
 
     _handleChange(e) {

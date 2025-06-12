@@ -39,6 +39,11 @@ export class GenForm2PDF extends LitElement {
         
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
         super.connectedCallback();
+
+        if (this.dirtyText != '' && this.dirtyText != this._dirtyText) {
+            this._dirtyText = this.dirtyText;
+            this._generatePDF();
+        }
     }
 
     // createRenderRoot() {        
@@ -49,6 +54,8 @@ export class GenForm2PDF extends LitElement {
 
     async firstUpdated() {
         
+        if (GenForm2PDF.ignoreConstructed || this._ignore) return;
+
         console.log("firstUpdated");
         await new Promise((r) => setTimeout(r, 0));
 
@@ -57,12 +64,12 @@ export class GenForm2PDF extends LitElement {
         GenForm2PDF.loadCustomLibrarys();
 
         //super.connectedCallback();
-        if (this._timer) clearTimeout(this._timer);
-        this._timer = setTimeout(() => {
-            if (this.dirtyText != '') {
-                this._generatePDF();
-            }
-        });
+        // if (this._timer) clearTimeout(this._timer);
+        // this._timer = setTimeout(() => {
+        //     if (this.dirtyText != '') {
+        //         this._generatePDF();
+        //     }
+        // });
 
     }
 
@@ -192,9 +199,10 @@ export class GenForm2PDF extends LitElement {
 
         console.log("PDF generated");
         
-        this.value = pdfData;
+        let base64String = btoa(pdfData);
+        this.value = base64String;
         this._handleChange({
-            data: pdfData
+            data: base64String
         });
 
     }
@@ -249,9 +257,10 @@ export class GenForm2PDF extends LitElement {
     }
 
     render() {
-        return (this._ignore ? '' :
-        html`<p><textarea disabled=true style='width:100%;height:120px;'>${this.value}</textarea></p>`
-        );
+        return '';
+        //return (this._ignore ? '' :
+        //html`<p><textarea disabled=true style='width:100%;height:120px;'>${this.value}</textarea></p>`
+        //);
     }
 }
 

@@ -24,22 +24,27 @@ export class GenForm2PDF extends LitElement {
     constructor() {
         super();
 
-        this.margin = 0;
-        this.value = '';
-        this.encryptPassword = null;
-        this.dirtyText = '';
-        this._processingPDF = false;
-        this._processingPDF2 = false;
+        if (GenForm2PDF.ignoreConstructed) {
+            this._ignore = true;
+        }
+        else {
+            this.margin = 0;
+            this.value = '';
+            this.encryptPassword = null;
+            this.dirtyText = '';
+            this._processingPDF = false;
+            this._processingPDF2 = false;
+        }
     }
 
+    connectedCallback() {
+        // if (this._processingPDF == true || this._processingPDF2 == true) {
+        //     return;
+        // }
 
-    // connectedCallback() {
-
-    //     if (this._processingPDF == true || this._processingPDF2 == true) {
-    //         return;
-    //     }
-
-    // }
+        if (GenForm2PDF.ignoreConstructed || this._ignore) return;
+        super.connectedCallback();
+    }
 
     // createRenderRoot() {        
     //     console.log("createRenderRoot");
@@ -66,22 +71,24 @@ export class GenForm2PDF extends LitElement {
 
     }
 
-    // requestUpdate() {
-    //     console.log("requestUpdate");
 
-    //     //this.dirtyText = Date.now().toString();
-    //     if (this._processingPDF == true || this._processingPDF2 == true) {
-    //         return;
-    //     }
+    requestUpdate() {
 
-    //     GenForm2PDF.loadCustomLibrarys();
+        if (GenForm2PDF.ignoreConstructed || this._ignore) return;
+        // console.log("requestUpdate");
 
-    //     //this._generatePDF();
-    //     //this._handleGeneratePDF();
+        // //this.dirtyText = Date.now().toString();
+        // if (this._processingPDF == true || this._processingPDF2 == true) {
+        //     return;
+        // }
 
-    //     super.requestUpdate();
+        // GenForm2PDF.loadCustomLibrarys();
 
-    // }
+        // //this._generatePDF();
+        // //this._handleGeneratePDF();
+
+        super.requestUpdate();
+    }
 
     // shouldUpdate(changedProperties) {
     //     // Only update element if prop1 changed.
@@ -174,7 +181,10 @@ export class GenForm2PDF extends LitElement {
         //html2pdf().set(opt).from(element).save('my-pdf.pdf');
         this._processingPDF2 = true;
 
+        await this.updateComplete;
+        GenForm2PDF.ignoreConstructed = true;
         let pdf = await html2pdf().set(opt).from(element).outputPdf();
+        GenForm2PDF.ignoreConstructed = false;
 
         //pdfData = btoa(pdf);
         pdfData = pdf;
@@ -240,7 +250,9 @@ export class GenForm2PDF extends LitElement {
     }
 
     render() {
-        return html`<p><textarea disabled=true style='width:100%;height:120px;'>${this.value}</textarea></p>`;
+        return (this._ignore ? '' :
+        html`<p><textarea disabled=true style='width:100%;height:120px;'>${this.value}</textarea></p>`
+        );
     }
 }
 

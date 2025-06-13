@@ -206,22 +206,22 @@ export class GenForm2PDF extends LitElement {
 
         console.log("PDF generated");
         
-        let base64String = btoa(pdfData)
-            .replace(/\+/g, '-')
-            .replace(/\//g, '_')
-            .replace(/=+$/, '')
-            ;
+        let base64String = btoa(pdfData);
+            // .replace(/\+/g, '-')
+            // .replace(/\//g, '_')
+            // .replace(/=+$/, '')
+            //;
 
         //this.value = pdfData;
         this.value = {
-            contentLength: pdfData.length,
-            content: pdfData
+            contentLength: base64String.length,
+            content: base64String
         }
 
         this._handleChange({
             data: {
-                contentLength: pdfData.length,
-                content: pdfData
+                contentLength: base64String.length,
+                content: base64String
             }
         });
 
@@ -271,6 +271,7 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
+                            format: 'byte',
                             title: 'Content',
                         }
                     }                    

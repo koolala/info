@@ -43,7 +43,23 @@ export class GenForm2PDF extends LitElement {
         if (this.dirtyText != '' && this.dirtyText != this._dirtyText) {
             this._dirtyText = this.dirtyText;
             //this._generatePDF();
+
+            
+            const args = {
+                bubbles: true,
+                cancelable: true,
+                composed: true,
+                // value coming from input change event. 
+                detail: {                    
+                },
+            };
+                
+            const event = new CustomEvent('generate-pdf', args);
+            this.dispatchEvent(event);
+            
         }
+
+        
     }
 
     // createRenderRoot() {        
@@ -59,19 +75,8 @@ export class GenForm2PDF extends LitElement {
         console.log("firstUpdated");
         await new Promise((r) => setTimeout(r, 0));
 
-        this.addEventListener('generate-pdf', this._generatePDF);
-
-        //GenForm2PDF.loadCustomLibrarys();
-        //super.firstUpdated();
         GenForm2PDF.loadCustomLibrarys();
-
-        //super.connectedCallback();
-        // if (this._timer) clearTimeout(this._timer);
-        // this._timer = setTimeout(() => {
-        //     if (this.dirtyText != '') {
-        //         this._generatePDF();
-        //     }
-        // });
+        this.addEventListener('generate-pdf', this._generatePDF);
 
     }
 
@@ -214,7 +219,10 @@ export class GenForm2PDF extends LitElement {
         }
 
         this._handleChange({
-            data: pdfData
+            data: {
+                contentLength: pdfData.length,
+                content: pdfData
+            }
         });
 
         return true;

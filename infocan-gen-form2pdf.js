@@ -217,6 +217,8 @@ export class GenForm2PDF extends LitElement {
             data: pdfData
         });
 
+        return true;
+
     }
     
 

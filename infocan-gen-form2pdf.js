@@ -6,7 +6,7 @@ export class GenForm2PDF extends LitElement {
             type: Number 
         },
         value: { 
-            type: String
+            type: Object
         },
         encryptPassword: { 
             type: String

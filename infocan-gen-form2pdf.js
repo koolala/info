@@ -42,7 +42,7 @@ export class GenForm2PDF extends LitElement {
 
         if (this.dirtyText != '' && this.dirtyText != this._dirtyText) {
             this._dirtyText = this.dirtyText;
-            this._generatePDF();
+            //this._generatePDF();
         }
     }
 
@@ -58,6 +58,8 @@ export class GenForm2PDF extends LitElement {
 
         console.log("firstUpdated");
         await new Promise((r) => setTimeout(r, 0));
+
+        this.addEventListener('generate-pdf', this._generatePDF);
 
         //GenForm2PDF.loadCustomLibrarys();
         //super.firstUpdated();
@@ -166,7 +168,7 @@ export class GenForm2PDF extends LitElement {
         downloadLink.click();
     }
 
-    async _generatePDF() {
+    async _generatePDF(e) {
         //await this.updateComplete;
         
         console.log("generatePDF");
@@ -211,11 +213,12 @@ export class GenForm2PDF extends LitElement {
             content: pdfData
         }
 
-        // this._handleChange({
-        //     data: pdfData
-        // });
+        this._handleChange({
+            data: pdfData
+        });
 
     }
+    
 
     _handleChange(e) {
         const args = {
@@ -238,11 +241,12 @@ export class GenForm2PDF extends LitElement {
             standardProperties: {
                 readOnly: true,
                 visibility: false,
+                required: false,
                 description: false,
                 defaultValue: false,
                 placeholder: false,
                 toolTip: false,
-                fieldLable: false
+                fieldLabel: false
             },
             properties: {
                 value: {
@@ -252,10 +256,12 @@ export class GenForm2PDF extends LitElement {
                     properties: {
                         contentLength: {
                             type: 'integer',
+                            title: 'Content-length',
                             minimum: 0
                         },
                         content: {
-                            type: 'string'
+                            type: 'string',
+                            title: 'Content',
                         }
                     }                    
                 },
@@ -278,7 +284,10 @@ export class GenForm2PDF extends LitElement {
                     description: 'This field is used to trigger the PDF generation. Any change will trigger the PDF generation.',
                     defaultValue: ''
                 }
-            }
+            },
+            events: [
+                "generate-pdf"
+            ]
         };
     }
 

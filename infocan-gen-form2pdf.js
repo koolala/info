@@ -29,7 +29,7 @@ export class GenForm2PDF extends LitElement {
         }
         else {
             this.margin = 0;
-            this.value = '';
+            this.value = null;
             this.encryptPassword = null;
             this.dirtyText = '';
         }
@@ -199,11 +199,21 @@ export class GenForm2PDF extends LitElement {
 
         console.log("PDF generated");
         
-        let base64String = btoa(pdfData);
-        this.value = base64String;
-        this._handleChange({
-            data: base64String
-        });
+        let base64String = btoa(pdfData)
+            .replace(/\+/g, '-')
+            .replace(/\//g, '_')
+            .replace(/=+$/, '')
+            ;
+
+        //this.value = pdfData;
+        this.value = {
+            contentLength: pdfData.length,
+            content: pdfData
+        }
+
+        // this._handleChange({
+        //     data: pdfData
+        // });
 
     }
 
@@ -225,13 +235,29 @@ export class GenForm2PDF extends LitElement {
             controlName: 'Gen Form to PDF',
             fallbackDisableSubmit: true,
             version: '1.0',
+            standardProperties: {
+                readOnly: true,
+                visibility: false,
+                description: false,
+                defaultValue: false,
+                placeholder: false,
+                toolTip: false,
+                fieldLable: false
+            },
             properties: {
                 value: {
-                    type: 'string',
+                    type: 'object',
                     title: 'PDF File Base64',
-                    isValueField: true
-                    //,
-                    //required: true
+                    isValueField: true,
+                    properties: {
+                        contentLength: {
+                            type: 'integer',
+                            minimum: 0
+                        },
+                        content: {
+                            type: 'string'
+                        }
+                    }                    
                 },
                 margin: {
                     type: 'number',

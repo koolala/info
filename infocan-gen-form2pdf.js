@@ -193,9 +193,9 @@ export class GenForm2PDF extends LitElement {
             //filename: 'my-file.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
-                scale: 1, 
-                width: 900, 
-                windowWidth: 900, 
+                scale: 2, 
+                width: cloneElement.clientWidth || cloneElement.offsetWidth || 900,
+                height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
                 ignoreElements: (el) => {
                     //console.log("ignoreElements", el);
                     //if (el.classList.contains('nx-form')) return true;
@@ -213,7 +213,8 @@ export class GenForm2PDF extends LitElement {
         };
 
         cloneElement.querySelector("infocan-gen-form2pdf")?.remove();
-        let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('datauristring');
+        let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf();
+        //let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('datauristring');
         //let pdfDataArrayBuffer = await html2pdf().set(opt).from(cloneElement).outputPdf('arraybuffer');
         
         //cloneElement.remove();
@@ -287,7 +288,9 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
-                            format: 'byte',
+                            //format: 'byte',
+                            //format: 'binary',
+                            format: 'x-ntx-file-reference',
                             title: 'Content',
                         }
                     }                    

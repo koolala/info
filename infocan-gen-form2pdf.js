@@ -6,16 +6,7 @@ export class GenForm2PDF extends LitElement {
             type: Number 
         },
         value: { 
-            type: Object,
-            properties: {
-                content: {
-                    type: String,
-                    format: 'binary',
-                },
-                contentLength: {
-                    type: Number
-                }
-            }
+            type: Object
         },
         encryptPassword: { 
             type: String
@@ -42,6 +33,7 @@ export class GenForm2PDF extends LitElement {
             this.encryptPassword = null;
             this.dirtyText = '';
         }
+
     }
 
     connectedCallback() {
@@ -49,10 +41,9 @@ export class GenForm2PDF extends LitElement {
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
         super.connectedCallback();
 
+
         if (this.dirtyText != '' && this.dirtyText != this._dirtyText) {
             this._dirtyText = this.dirtyText;
-            //this._generatePDF();
-
             
             const args = {
                 bubbles: true,
@@ -62,13 +53,11 @@ export class GenForm2PDF extends LitElement {
                 detail: {                    
                 },
             };
-                
+
             const event = new CustomEvent('generate-pdf', args);
             this.dispatchEvent(event);
-            
         }
 
-        
     }
 
     // createRenderRoot() {        
@@ -282,7 +271,7 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
-                            format: 'binary',
+                            format: 'byte',
                             title: 'Content',
                         }
                     }                    

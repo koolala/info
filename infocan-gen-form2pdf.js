@@ -155,6 +155,8 @@ export class GenForm2PDF extends LitElement {
             GenForm2PDF.downloadFileObject(base64String);
         } else if (base64String.startsWith("data:application/pdf;base64")) {
             GenForm2PDF.downloadFileObject(base64String);
+        } else if (base64String.startsWith("data:application/pdf;filename=generated.pdf;base64,JVB")) {
+            GenForm2PDF.downloadFileObject(base64String);
         } else {
             //alert("Not a valid Base64 PDF string. Please check");
             console.error("Not a valid Base64 PDF string. Please check");
@@ -191,15 +193,18 @@ export class GenForm2PDF extends LitElement {
             //filename: 'my-file.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
-                scale: 2, 
-                width: cloneElement.width, 
-                windowWidth: cloneElement.width, 
+                scale: 1, 
+                width: 900, 
+                windowWidth: 900, 
                 ignoreElements: (el) => {
                     //console.log("ignoreElements", el);
                     //if (el.classList.contains('nx-form')) return true;
                     if (el == null) return false;
                     if (el.tagName?.toUpperCase() == elementName.toUpperCase()) return true; // ignore this element
                     if (el.classList.contains('infocan-gen-form2pdf')) return true; // ignore this element
+
+                    if (el.classList.contains('d-print-none')) return true; // ignore elements with d-print-none class
+                    if (el.classList.contains('nx-action-panel')) return true;
                     return false;
                 } 
             },
@@ -231,6 +236,11 @@ export class GenForm2PDF extends LitElement {
                 content: pdfData
             }
         });
+
+        //# 
+        if (false) {
+            GenForm2PDF.downloadAsPDF(pdfData);
+        }
 
         return true;
     }

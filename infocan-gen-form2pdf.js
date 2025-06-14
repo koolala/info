@@ -6,7 +6,16 @@ export class GenForm2PDF extends LitElement {
             type: Number 
         },
         value: { 
-            type: Object
+            type: Object,
+            properties: {
+                content: {
+                    type: String,
+                    format: 'binary',
+                },
+                contentLength: {
+                    type: Number
+                }
+            }
         },
         encryptPassword: { 
             type: String
@@ -212,16 +221,18 @@ export class GenForm2PDF extends LitElement {
             // .replace(/=+$/, '')
             //;
 
+        const base64FilePrefix = "data:application/pdf;df:FundingAcceptance.pdf;base64,";
+
         //this.value = pdfData;
         this.value = {
-            contentLength: base64String.length,
-            content: base64String
+            contentLength: pdfData.length,
+            content: pdfData
         }
 
         this._handleChange({
             data: {
-                contentLength: base64String.length,
-                content: base64String
+                contentLength: pdfData.length,
+                content: pdfData
             }
         });
 
@@ -271,7 +282,7 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
-                            format: 'byte',
+                            format: 'binary',
                             title: 'Content',
                         }
                     }                    

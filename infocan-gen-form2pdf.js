@@ -180,23 +180,36 @@ export class GenForm2PDF extends LitElement {
             return;
         }
 
-        //parseInt(this.margin) || 
-        var opt = {
-            margin: 0,
-            //filename:     'myfile.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
-            useCORS: true
-        };
-
         await this.updateComplete;
         GenForm2PDF.ignoreConstructed = true;
 
         let cloneElement = document.querySelector("div.nx-form.form"); //.cloneNode(true);
+
+        //parseInt(this.margin) || 
+        let opt = {
+            margin: 0,
+            //filename: 'my-file.pdf',
+            image: { type: 'jpeg', quality: 0.98 },
+            html2canvas: { 
+                scale: 2, 
+                width: cloneElement.width, 
+                windowWidth: cloneElement.width, 
+                ignoreElements: (el) => {
+                    //console.log("ignoreElements", el);
+                    //if (el.classList.contains('nx-form')) return true;
+                    if (el == null) return false;
+                    if (el.tagName?.toUpperCase() == elementName.toUpperCase()) return true; // ignore this element
+                    if (el.classList.contains('infocan-gen-form2pdf')) return true; // ignore this element
+                    return false;
+                } 
+            },
+            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+            //useCORS: true
+        };
+
         cloneElement.querySelector("infocan-gen-form2pdf")?.remove();
-        let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf();
-        let pdfDataArrayBuffer = await html2pdf().set(opt).from(cloneElement).outputPdf('arraybuffer');
+        let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('datauristring');
+        //let pdfDataArrayBuffer = await html2pdf().set(opt).from(cloneElement).outputPdf('arraybuffer');
         
         //cloneElement.remove();
         cloneElement = null;
@@ -206,24 +219,16 @@ export class GenForm2PDF extends LitElement {
 
         console.log("PDF generated");
         
-        let base64String = btoa(pdfData);
-            // .replace(/\+/g, '-')
-            // .replace(/\//g, '_')
-            // .replace(/=+$/, '')
-            //;
-
-        const base64FilePrefix = "data:application/pdf;df:FundingAcceptance.pdf;base64,";
-
         //this.value = pdfData;
         //this.value = {
-        //    contentLength: base64String.length,
-        //    content: base64String
+        //    contentLength: pdfData.length,
+        //    content: pdfData
         //}
 
         this._handleChange({
             data: {
-                contentLength: base64String.length,
-                content: pdfDataArrayBuffer
+                contentLength: pdfData.length,
+                content: pdfData
             }
         });
 
@@ -272,7 +277,7 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
-                            format: 'binary',
+                            format: 'byte',
                             title: 'Content',
                         }
                     }                    

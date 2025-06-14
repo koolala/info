@@ -152,9 +152,9 @@ export class GenForm2PDF extends LitElement {
 
         if (base64String.startsWith("JVB")) {
             base64String = "data:application/pdf;base64," + base64String;
-            downloadFileObject(base64String);
+            GenForm2PDF.downloadFileObject(base64String);
         } else if (base64String.startsWith("data:application/pdf;base64")) {
-            downloadFileObject(base64String);
+            GenForm2PDF.downloadFileObject(base64String);
         } else {
             //alert("Not a valid Base64 PDF string. Please check");
             console.error("Not a valid Base64 PDF string. Please check");
@@ -196,6 +196,8 @@ export class GenForm2PDF extends LitElement {
         let cloneElement = document.querySelector("div.nx-form.form"); //.cloneNode(true);
         cloneElement.querySelector("infocan-gen-form2pdf")?.remove();
         let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf();
+        let pdfDataArrayBuffer = await html2pdf().set(opt).from(cloneElement).outputPdf('arraybuffer');
+        
         //cloneElement.remove();
         cloneElement = null;
 
@@ -213,20 +215,19 @@ export class GenForm2PDF extends LitElement {
         const base64FilePrefix = "data:application/pdf;df:FundingAcceptance.pdf;base64,";
 
         //this.value = pdfData;
-        this.value = {
-            contentLength: pdfData.length,
-            content: pdfData
-        }
+        //this.value = {
+        //    contentLength: base64String.length,
+        //    content: base64String
+        //}
 
         this._handleChange({
             data: {
-                contentLength: pdfData.length,
-                content: pdfData
+                contentLength: base64String.length,
+                content: pdfDataArrayBuffer
             }
         });
 
         return true;
-
     }
     
 
@@ -271,7 +272,7 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
-                            format: 'byte',
+                            format: 'binary',
                             title: 'Content',
                         }
                     }                    

@@ -216,9 +216,10 @@ export class GenForm2PDF extends LitElement {
         };
 
         cloneElement.querySelector("infocan-gen-form2pdf")?.remove();
-        //let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf();
-        let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('datauristring');
-        let pdfDataArrayBuffer = await html2pdf().set(opt).from(cloneElement).outputPdf('arraybuffer');
+        let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf().then(function(pdf) { return btoa(pdf); }, function() { return ''; }); 
+        //let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('blob'); //datauri
+        //let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('datauristring');
+        //let pdfDataArrayBuffer = await html2pdf().set(opt).from(cloneElement).outputPdf('arraybuffer');
         
         //cloneElement.remove();
         cloneElement = null;
@@ -237,7 +238,7 @@ export class GenForm2PDF extends LitElement {
         this._handleChange({
             data: {
                 contentLength: pdfData.length,
-                content: pdfDataArrayBuffer
+                content: pdfData
             }
         });
 
@@ -291,8 +292,8 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
-                            //format: 'byte',
-                            format: 'binary',
+                            format: 'byte',
+                            //format: 'binary',
                             //format: 'x-ntx-file-reference',
                             title: 'Content',
                         }
@@ -325,7 +326,7 @@ export class GenForm2PDF extends LitElement {
     }
 
     render() {
-        return '';
+        return html``;
         //return (this._ignore ? '' :
         //html`<p><textarea disabled=true style='width:100%;height:120px;'>${this.value}</textarea></p>`
         //);

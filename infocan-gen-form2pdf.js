@@ -13,6 +13,9 @@ export class GenForm2PDF extends LitElement {
         },
         dirtyText: {
             type: String
+        },
+        src: {
+            type: String
         }
     };
     
@@ -31,7 +34,8 @@ export class GenForm2PDF extends LitElement {
             this.margin = 0;
             this.value = {
                 contentLength: 0,
-                content: ''
+                content: '',
+                fileName: '',
             };
             this.encryptPassword = null;
             this.dirtyText = '';
@@ -292,12 +296,21 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
-                            format: 'byte',
+                            //format: 'byte',
                             //format: 'binary',
                             //format: 'x-ntx-file-reference',
                             title: 'Content',
+                        },
+                        fileName: {
+                            type: 'string',
+                            title: 'Mapped File name'
                         }
                     }                    
+                },
+                src: {
+                    type: 'string',
+                    title: 'SharePoint Page',
+                    description: 'SharePoint Integration Page Url (.aspx)'
                 },
                 margin: {
                     type: 'number',
@@ -326,10 +339,11 @@ export class GenForm2PDF extends LitElement {
     }
 
     render() {
-        return html``;
-        //return (this._ignore ? '' :
-        //html`<p><textarea disabled=true style='width:100%;height:120px;'>${this.value}</textarea></p>`
-        //);
+        if (this.value == null || this.src == null) return '';
+        return html`<div>
+            <span>${this.value.fileName}</span>
+            <iframe src="${this.src}?&base64data=${this.value.content}&fileName=${this.value.fileName}"></iframe>
+            </div>`;
     }
 }
 

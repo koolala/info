@@ -291,8 +291,8 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
-                            format: 'byte',
-                            //format: 'binary',
+                            //format: 'byte',
+                            format: 'binary',
                             //format: 'x-ntx-file-reference',
                             title: 'Content',
                         }

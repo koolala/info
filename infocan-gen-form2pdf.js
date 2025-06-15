@@ -29,7 +29,10 @@ export class GenForm2PDF extends LitElement {
         }
         else {
             this.margin = 0;
-            this.value = null;
+            this.value = {
+                contentLength: 0,
+                content: ''
+            };
             this.encryptPassword = null;
             this.dirtyText = '';
         }
@@ -213,9 +216,9 @@ export class GenForm2PDF extends LitElement {
         };
 
         cloneElement.querySelector("infocan-gen-form2pdf")?.remove();
-        let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf();
-        //let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('datauristring');
-        //let pdfDataArrayBuffer = await html2pdf().set(opt).from(cloneElement).outputPdf('arraybuffer');
+        //let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf();
+        let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('datauristring');
+        let pdfDataArrayBuffer = await html2pdf().set(opt).from(cloneElement).outputPdf('arraybuffer');
         
         //cloneElement.remove();
         cloneElement = null;
@@ -234,7 +237,7 @@ export class GenForm2PDF extends LitElement {
         this._handleChange({
             data: {
                 contentLength: pdfData.length,
-                content: pdfData
+                content: pdfDataArrayBuffer
             }
         });
 
@@ -288,9 +291,9 @@ export class GenForm2PDF extends LitElement {
                         },
                         content: {
                             type: 'string',
-                            //format: 'byte',
+                            format: 'byte',
                             //format: 'binary',
-                            format: 'x-ntx-file-reference',
+                            //format: 'x-ntx-file-reference',
                             title: 'Content',
                         }
                     }                    

@@ -1,5 +1,6 @@
 import { html, LitElement } from 'https://cdn.jsdelivr.net/gh/lit/dist@2/all/lit-all.min.js'
 
+
 export class GenForm2PDF extends LitElement {
     static properties = {
         margin: { 
@@ -61,8 +62,7 @@ export class GenForm2PDF extends LitElement {
         //     this._dirtyText = this.dirtyText;
             
         // }
-
-        this._onRequestGeneratePDF();
+        //this._onRequestGeneratePDF();
     }
 
     // createRenderRoot() {        
@@ -85,8 +85,8 @@ export class GenForm2PDF extends LitElement {
 
         let $btn_submit = document.querySelector('button[data-e2e="btn-submit"]');
         if ($btn_submit != null) {
-            $btn_submit.removeEventListener('click', this._onRequestGeneratePDF);
-            $btn_submit.addEventListener('click', this._onRequestGeneratePDF);
+            $btn_submit.removeEventListener('click', this._onRequestGeneratePDF.bind(this));
+            $btn_submit.addEventListener('click', this._onRequestGeneratePDF.bind(this));
         }
     }
 
@@ -186,7 +186,7 @@ export class GenForm2PDF extends LitElement {
     }
 
     //# For external call.
-    _onRequestGeneratePDF(e) {
+    async _onRequestGeneratePDF(e) {
         
         console.log(e);
         
@@ -200,6 +200,11 @@ export class GenForm2PDF extends LitElement {
 
         const event = new CustomEvent('generate-pdf', args);
         this.dispatchEvent(event);
+
+        while (event.detail.result !== 'success') {
+            await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
+        }
+
     }
 
     //# For this compoent.
@@ -273,7 +278,7 @@ export class GenForm2PDF extends LitElement {
         console.log(tempValue);
 
         //this.value = tempValue;
-        this._handleChange({
+        await this._handleChange({
             data: tempValue
         });
 
@@ -283,11 +288,13 @@ export class GenForm2PDF extends LitElement {
         }
 
         GenForm2PDF.ignoreConstructed = false;
+        await this.updateComplete;
+
         return true;
     }
     
 
-    _handleChange(e) {
+    async _handleChange(e) {
         const args = {
             bubbles: true,
             cancelable: false,
@@ -298,6 +305,10 @@ export class GenForm2PDF extends LitElement {
 
         const event = new CustomEvent('ntx-value-change', args);
         this.dispatchEvent(event);
+
+        while (event.detail.result !== 'success') {
+            await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
+        }
     }
 
     static getMetaConfig() {
@@ -333,10 +344,13 @@ export class GenForm2PDF extends LitElement {
                             //format: 'binary',
                             //format: 'x-ntx-file-reference',
                             title: 'Content',
+                            required: true
                         },
                         fileName: {
                             type: 'string',
-                            title: 'Mapped File name'
+                            title: 'Mapped File name',
+                            description: 'Prefix_Subfix_ID_ISODate.pdf',
+                            required: true
                         }
                     }                    
                 },

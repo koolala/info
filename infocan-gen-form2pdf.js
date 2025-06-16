@@ -204,10 +204,14 @@ export class GenForm2PDF extends LitElement {
     //# For external call.
     async _onRequestGeneratePDF(e) {
 
-        if (e && e.detail) {
-            if (e.detail.raw == true) return true;
-            e.preventDefault();
-            e.stopImmediatePropagation();
+        if (e) {
+            if (e.detail == null) {
+                e.preventDefault();
+                e.stopImmediatePropagation();
+            }
+            else if (e.detail.rawOnly == true) {
+                return true;
+            }            
         }
         
         console.log(e);
@@ -222,26 +226,25 @@ export class GenForm2PDF extends LitElement {
             // value coming from input change event. 
             detail: {},
         };
-        const event = new CustomEvent('generate-pdf', args);
-        this.dispatchEvent(event);
-        
-        //await this._generatePDF();
+
+        //const event = new CustomEvent('generate-pdf', args);
+        //this.dispatchEvent(event);
+        await this._generatePDF();
 
         await new Promise((r) => setTimeout(r, 10));     
         await this.updateComplete;
 
 
-
-        if (e && e.target) {
+        if (e && e.target && e.detail) {
             //# Run original
             let args = {
                 bubbles: true,
                 cancelable: false,
                 composed: true,
                 // value coming from input change event. 
-                detail: { raw: true },
+                detail: { rawOnly: true },
             };
-            let event = new Event('click', args);
+            let event = new CustomEvent('click', args);
             e.target.dispatchEvent(event);
         }        
         

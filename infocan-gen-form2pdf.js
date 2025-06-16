@@ -14,9 +14,6 @@ export class GenForm2PDF extends LitElement {
         dirtyText: {
             type: String
         },
-        src: {
-            type: String
-        },
         inputFileNamePrefix: {
             type: String
         },
@@ -65,18 +62,7 @@ export class GenForm2PDF extends LitElement {
             
         // }
 
-        const args = {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-            // value coming from input change event. 
-            detail: {                    
-            },
-        };
-
-        const event = new CustomEvent('generate-pdf', args);
-        this.dispatchEvent(event);
-
+        this._onRequestGeneratePDF();
     }
 
     // createRenderRoot() {        
@@ -90,15 +76,17 @@ export class GenForm2PDF extends LitElement {
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
 
         console.log("firstUpdated");
-        await new Promise((r) => setTimeout(r, 0));
-
+        
         GenForm2PDF.loadCustomLibrarys();
+        
+        await new Promise((r) => setTimeout(r, 0));
         this.addEventListener('generate-pdf', this._generatePDF);
+        
 
         let $btn_submit = document.querySelector('button[data-e2e="btn-submit"]');
         if ($btn_submit != null) {
-            $btn_submit.removeEventListener('click', this._generatePDF);
-            $btn_submit.addEventListener('click', this._generatePDF);
+            $btn_submit.removeEventListener('click', this._onRequestGeneratePDF);
+            $btn_submit.addEventListener('click', this._onRequestGeneratePDF);
         }
     }
 
@@ -197,6 +185,24 @@ export class GenForm2PDF extends LitElement {
         downloadLink.click();
     }
 
+    //# For external call.
+    _onRequestGeneratePDF(e) {
+        
+        console.log(e);
+        
+        const args = {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            // value coming from input change event. 
+            detail: {},
+        };
+
+        const event = new CustomEvent('generate-pdf', args);
+        this.dispatchEvent(event);
+    }
+
+    //# For this compoent.
     async _generatePDF(e) {
         //await this.updateComplete;
         
@@ -314,6 +320,7 @@ export class GenForm2PDF extends LitElement {
                     type: 'object',
                     title: 'PDF File Base64',
                     isValueField: true,
+                    required: false,
                     properties: {
                         contentLength: {
                             type: 'integer',
@@ -332,11 +339,6 @@ export class GenForm2PDF extends LitElement {
                             title: 'Mapped File name'
                         }
                     }                    
-                },
-                src: {
-                    type: 'string',
-                    title: 'SharePoint Page',
-                    description: 'SharePoint Integration Page Url (.aspx)'
                 },
                 margin: {
                     type: 'number',
@@ -374,11 +376,6 @@ export class GenForm2PDF extends LitElement {
 
     render() {
         return html``;
-        // if (this.value == null || this.src == null) return '';
-        // return html`<div>
-        //     <span>${this.value.fileName}</span>
-        //     <iframe src="${this.src}?&base64data=${this.value.content}&fileName=${this.value.fileName}"></iframe>
-        //     </div>`;
     }
 }
 

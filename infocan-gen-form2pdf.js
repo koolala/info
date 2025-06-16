@@ -57,7 +57,7 @@ export class GenForm2PDF extends LitElement {
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
         super.connectedCallback();
 
-        if (this.dirtyText != '') return;
+        if (this.dirtyText == '') return;
 
         //
         // if (this.dirtyText != '' && this.dirtyText != this._dirtyText) {
@@ -212,9 +212,9 @@ export class GenForm2PDF extends LitElement {
             //filename: 'my-file.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
-                scale: 2, 
-                width: cloneElement.clientWidth || cloneElement.offsetWidth || 900,
-                height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
+                //scale: 1, 
+                //width: cloneElement.clientWidth || cloneElement.offsetWidth || 900,
+                //height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
                 ignoreElements: (el) => {
                     //console.log("ignoreElements", el);
                     //if (el.classList.contains('nx-form')) return true;

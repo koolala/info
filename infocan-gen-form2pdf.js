@@ -95,6 +95,11 @@ export class GenForm2PDF extends LitElement {
         GenForm2PDF.loadCustomLibrarys();
         this.addEventListener('generate-pdf', this._generatePDF);
 
+        let $btn_submit = document.querySelector('button[data-e2e="btn-submit"]');
+        if ($btn_submit != null) {
+            $btn_submit.removeEventListener('click', this._generatePDF);
+            $btn_submit.addEventListener('click', this._generatePDF);
+        }
     }
 
 
@@ -212,7 +217,7 @@ export class GenForm2PDF extends LitElement {
             //filename: 'my-file.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
-                //scale: 1, 
+                //scale: 2, 
                 //width: cloneElement.clientWidth || cloneElement.offsetWidth || 900,
                 //height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
                 ignoreElements: (el) => {
@@ -227,7 +232,16 @@ export class GenForm2PDF extends LitElement {
                     return false;
                 } 
             },
-            jsPDF: { unit: 'in', format: 'a4', orientation: 'portrait' },
+            //format:[canvasSizeObj.width,canvasSizeObj.height]
+            jsPDF: { 
+                //unit: 'in', 
+                //format: 'a4',
+                format: [
+                    cloneElement.clientWidth || cloneElement.offsetWidth || 900,
+                    cloneElement.clientHeight || cloneElement.offsetHeight || 1200
+                ], 
+                orientation: 'portrait'
+             },
             //useCORS: true
         };
 

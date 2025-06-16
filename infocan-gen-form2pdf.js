@@ -204,9 +204,11 @@ export class GenForm2PDF extends LitElement {
     //# For external call.
     async _onRequestGeneratePDF(e) {
 
-        //if (e) {
-        //    e.stopImmediatePropagation();
-        //}
+        if (e && e.detail) {
+            if (e.detail.raw == true) return true;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+        }
         
         console.log(e);
         this.dirtyText = new Date().toISOString();
@@ -227,6 +229,21 @@ export class GenForm2PDF extends LitElement {
 
         await new Promise((r) => setTimeout(r, 10));     
         await this.updateComplete;
+
+
+
+        if (e && e.target) {
+            //# Run original
+            let args = {
+                bubbles: true,
+                cancelable: false,
+                composed: true,
+                // value coming from input change event. 
+                detail: { raw: true },
+            };
+            let event = new Event('click', args);
+            e.target.dispatchEvent(event);
+        }        
         
     }
 

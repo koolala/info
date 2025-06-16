@@ -62,7 +62,21 @@ export class GenForm2PDF extends LitElement {
         //     this._dirtyText = this.dirtyText;
             
         // }
-        //this._onRequestGeneratePDF();
+        
+        //this._onRequestGeneratePDF({});
+
+        const args = {
+            bubbles: true,
+            cancelable: false,
+            composed: true,
+            // value coming from input change event. 
+            detail: {},
+        };
+
+        const event = new CustomEvent('generate-pdf', args);
+        this.dispatchEvent(event);
+        //this._generatePDF();
+
     }
 
     // createRenderRoot() {        
@@ -81,7 +95,7 @@ export class GenForm2PDF extends LitElement {
         
         await new Promise((r) => setTimeout(r, 0));
         this.addEventListener('generate-pdf', this._generatePDF);
-        
+
 
         let $btn_submit = document.querySelector('button[data-e2e="btn-submit"]');
         if ($btn_submit != null) {
@@ -190,20 +204,26 @@ export class GenForm2PDF extends LitElement {
         
         console.log(e);
         
-        const args = {
-            bubbles: true,
-            cancelable: true,
-            composed: true,
-            // value coming from input change event. 
-            detail: {},
-        };
+        // const args = {
+        //     bubbles: true,
+        //     cancelable: false,
+        //     composed: true,
+        //     // value coming from input change event. 
+        //     detail: {},
+        // };
 
-        const event = new CustomEvent('generate-pdf', args);
-        this.dispatchEvent(event);
+        // const event = new CustomEvent('generate-pdf', args);
+        // this.dispatchEvent(event);
 
-        while (event.detail.result !== 'success') {
-            await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
-        }
+        // //await new Promise(resolve => setTimeout(resolve, 10));
+        
+        // await this.updateComplete;
+
+        // while (event.detail.result !== 'success') {
+        //     await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
+        // }
+
+        this.dirtyText = new Date().toISOString();
 
     }
 
@@ -306,9 +326,9 @@ export class GenForm2PDF extends LitElement {
         const event = new CustomEvent('ntx-value-change', args);
         this.dispatchEvent(event);
 
-        while (event.detail.result !== 'success') {
-            await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
-        }
+        //while (event.detail.result !== 'success') {
+        //    await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
+        //}
     }
 
     static getMetaConfig() {

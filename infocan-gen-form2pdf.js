@@ -57,22 +57,25 @@ export class GenForm2PDF extends LitElement {
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
         super.connectedCallback();
 
+        if (this.dirtyText != '') return;
 
-        if (this.dirtyText != '' && this.dirtyText != this._dirtyText) {
-            this._dirtyText = this.dirtyText;
+        //
+        // if (this.dirtyText != '' && this.dirtyText != this._dirtyText) {
+        //     this._dirtyText = this.dirtyText;
             
-            const args = {
-                bubbles: true,
-                cancelable: true,
-                composed: true,
-                // value coming from input change event. 
-                detail: {                    
-                },
-            };
+        // }
 
-            const event = new CustomEvent('generate-pdf', args);
-            this.dispatchEvent(event);
-        }
+        const args = {
+            bubbles: true,
+            cancelable: true,
+            composed: true,
+            // value coming from input change event. 
+            detail: {                    
+            },
+        };
+
+        const event = new CustomEvent('generate-pdf', args);
+        this.dispatchEvent(event);
 
     }
 
@@ -238,22 +241,20 @@ export class GenForm2PDF extends LitElement {
         cloneElement = null;
 
         //let pdf = await html2pdf().set(opt).from(element).outputPdf();
-        GenForm2PDF.ignoreConstructed = false;
 
         console.log("PDF generated");
         
-        //this.value = pdfData;
-        //this.value = {
-        //    contentLength: pdfData.length,
-        //    content: pdfData
-        //}
+        let tempValue = {
+            contentLength: pdfData.length,
+            content: pdfData,
+            fileName: (this.inputFileNamePrefix || "") + "_" + (this.inputFileNameSubfix || "") + "_" + new Date().toISOString().replace(/[\-:.]/g, '') + ".pdf"
+        };
 
+        console.log(tempValue);
+
+        //this.value = tempValue;
         this._handleChange({
-            data: {
-                contentLength: pdfData.length,
-                content: pdfData,
-                fileName: (this.inputFileNamePrefix || "") + (this.inputFileNameSubfix || "") + "_" + new Date().toISOString().replace(/[\-:.]/g, '') + ".pdf"
-            }
+            data: tempValue
         });
 
         //# 
@@ -261,6 +262,7 @@ export class GenForm2PDF extends LitElement {
             GenForm2PDF.downloadAsPDF(pdfData);
         }
 
+        GenForm2PDF.ignoreConstructed = false;
         return true;
     }
     

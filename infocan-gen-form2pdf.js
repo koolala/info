@@ -65,18 +65,18 @@ export class GenForm2PDF extends LitElement {
         
         //this._onRequestGeneratePDF({});
 
-        const args = {
-            bubbles: true,
-            cancelable: false,
-            composed: true,
-            // value coming from input change event. 
-            detail: {},
-        };
+        // const args = {
+        //     bubbles: true,
+        //     cancelable: false,
+        //     composed: true,
+        //     // value coming from input change event. 
+        //     detail: {},
+        // };
 
-        const event = new CustomEvent('generate-pdf', args);
-        this.dispatchEvent(event);
+        // const event = new CustomEvent('generate-pdf', args);
+        // this.dispatchEvent(event);
+        
         //this._generatePDF();
-
     }
 
     // createRenderRoot() {        
@@ -99,8 +99,8 @@ export class GenForm2PDF extends LitElement {
 
         let $btn_submit = document.querySelector('button[data-e2e="btn-submit"]');
         if ($btn_submit != null) {
-            $btn_submit.removeEventListener('click', this._onRequestGeneratePDF.bind(this));
-            $btn_submit.addEventListener('click', this._onRequestGeneratePDF.bind(this));
+            $btn_submit.removeEventListener('click', this._onRequestGeneratePDF.bind(this), true);
+            $btn_submit.addEventListener('click', this._onRequestGeneratePDF.bind(this), true);
         }
     }
 
@@ -214,21 +214,21 @@ export class GenForm2PDF extends LitElement {
 
         // const event = new CustomEvent('generate-pdf', args);
         // this.dispatchEvent(event);
-
-        // //await new Promise(resolve => setTimeout(resolve, 10));
         
-        // await this.updateComplete;
+        await this._generatePDF();
 
+        await new Promise(resolve => setTimeout(resolve, 10));
+        
         // while (event.detail.result !== 'success') {
         //     await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
         // }
 
-        this.dirtyText = new Date().toISOString();
+        //this.dirtyText = new Date().toISOString();
 
     }
 
     //# For this compoent.
-    async _generatePDF(e) {
+    async _generatePDF() {
         //await this.updateComplete;
         
         console.log("generatePDF");

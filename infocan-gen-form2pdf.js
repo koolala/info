@@ -252,7 +252,7 @@ export class GenForm2PDF extends LitElement {
             data: {
                 contentLength: pdfData.length,
                 content: pdfData,
-                fileName: (this.inputFileNamePrefix || "") + (this.inputFileNameSubfix || "") + "_" + new Date().toISOString().replace(/[\-:.]/g, '')
+                fileName: (this.inputFileNamePrefix || "") + (this.inputFileNameSubfix || "") + "_" + new Date().toISOString().replace(/[\-:.]/g, '') + ".pdf"
             }
         });
 

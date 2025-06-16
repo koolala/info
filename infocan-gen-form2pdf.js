@@ -16,6 +16,12 @@ export class GenForm2PDF extends LitElement {
         },
         src: {
             type: String
+        },
+        inputFileNamePrefix: {
+            type: String
+        },
+        inputFileNameSubfix: {
+            type: String
         }
     };
     
@@ -37,8 +43,11 @@ export class GenForm2PDF extends LitElement {
                 content: '',
                 fileName: '',
             };
-            this.encryptPassword = null;
+            this.encryptPassword = '';
             this.dirtyText = '';
+
+            this.inputFileNamePrefix = '';
+            this.inputFileNameSubfix = '';
         }
 
     }
@@ -242,7 +251,8 @@ export class GenForm2PDF extends LitElement {
         this._handleChange({
             data: {
                 contentLength: pdfData.length,
-                content: pdfData
+                content: pdfData,
+                fileName: (this.inputFileNamePrefix || "") + (this.inputFileNameSubfix || "") + "_" + new Date().toISOString().replace(/[\-:.]/g, '')
             }
         });
 
@@ -319,6 +329,14 @@ export class GenForm2PDF extends LitElement {
                     maximum: 10,
                     defaultValue: 0
                 },
+                inputFileNamePrefix:  {
+                    type: 'string',
+                    title: 'File prefix'
+                },
+                inputFileNameSubfix:  {
+                    type: 'string',
+                    title: 'File subfix'
+                },
                 encryptPassword: {
                     type: 'string',
                     title: 'Encrypt PDF with Password',
@@ -339,11 +357,12 @@ export class GenForm2PDF extends LitElement {
     }
 
     render() {
-        if (this.value == null || this.src == null) return '';
-        return html`<div>
-            <span>${this.value.fileName}</span>
-            <iframe src="${this.src}?&base64data=${this.value.content}&fileName=${this.value.fileName}"></iframe>
-            </div>`;
+        return html``;
+        // if (this.value == null || this.src == null) return '';
+        // return html`<div>
+        //     <span>${this.value.fileName}</span>
+        //     <iframe src="${this.src}?&base64data=${this.value.content}&fileName=${this.value.fileName}"></iframe>
+        //     </div>`;
     }
 }
 

@@ -205,18 +205,20 @@ export class GenForm2PDF extends LitElement {
     async _onRequestGeneratePDF(e) {
 
         if (e) {
+            console.log(e);
             if (e.detail == null) {
+                //# Cancel original submit button event
                 e.preventDefault();
                 e.stopImmediatePropagation();
             }
             else if (e.detail.rawOnly == true) {
+                //# re-trigger from our custom submit button event.
+                //# See at the end of this function.
                 return true;
             }            
         }
         
-        console.log(e);
-        this.dirtyText = new Date().toISOString();
-        
+        //this.dirtyText = new Date().toISOString();
         await this.updateComplete;
 
         const args = {
@@ -230,6 +232,7 @@ export class GenForm2PDF extends LitElement {
         //const event = new CustomEvent('generate-pdf', args);
         //this.dispatchEvent(event);
         await this._generatePDF();
+
 
         await new Promise((r) => setTimeout(r, 10));     
         await this.updateComplete;
@@ -246,6 +249,7 @@ export class GenForm2PDF extends LitElement {
             };
             let event = new CustomEvent('click', args);
             e.target.dispatchEvent(event);
+            return false;
         }        
         
     }
@@ -272,7 +276,7 @@ export class GenForm2PDF extends LitElement {
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
                 //scale: 2,
-                scale: 1, 
+                scale: 2, 
                 width: cloneElement.clientWidth || cloneElement.offsetWidth || 900,
                 height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
                 ignoreElements: (el) => {
@@ -285,16 +289,16 @@ export class GenForm2PDF extends LitElement {
                     if (el.classList.contains('d-print-none')) return true; // ignore elements with d-print-none class
                     if (el.classList.contains('nx-action-panel')) return true;
                     return false;
-                } 
+                }
             },
             //format:[canvasSizeObj.width,canvasSizeObj.height]
             jsPDF: { 
                 //unit: 'in', 
                 //format: 'a4',
-                unit: 'px',
+                unit: 'in',
                 format: [
-                    cloneElement.clientWidth || cloneElement.offsetWidth || 900,
-                    cloneElement.clientHeight || cloneElement.offsetHeight || 1200
+                    (cloneElement.clientWidth || cloneElement.offsetWidth || 900) * 2 / 96,
+                    (cloneElement.clientHeight || cloneElement.offsetHeight || 1200) * 2 / 96
                 ], 
                 orientation: 'portrait'
              },
@@ -309,7 +313,7 @@ export class GenForm2PDF extends LitElement {
         //let pdfDataArrayBuffer = await html2pdf().set(opt).from(cloneElement).outputPdf('arraybuffer');
         
         //cloneElement.remove();
-        cloneElement = null;
+        //cloneElement = null;
 
         //let pdf = await html2pdf().set(opt).from(element).outputPdf();
 
@@ -355,12 +359,8 @@ export class GenForm2PDF extends LitElement {
         while (
             (event.detail == null ? '' : event.detail.content) !== (this.value == null ? '' : this.value.content)            
         ) {
-            await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
+            await new Promise(r => setTimeout(r, 10)); // Wait a short time
         }
-
-        // while (this.value == null) {
-        //     await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
-        // }
 
     }
 

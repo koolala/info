@@ -46,6 +46,8 @@ export class GenForm2PDF extends LitElement {
 
             this.inputFileNamePrefix = '';
             this.inputFileNameSubfix = '';
+
+            this._runStartTime = new Date().toISOString();
         }
 
     }
@@ -90,6 +92,7 @@ export class GenForm2PDF extends LitElement {
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
 
         console.log("firstUpdated");
+        this._runStartTime = new Date().toISOString();
         
         GenForm2PDF.loadCustomLibrarys();
         
@@ -214,17 +217,13 @@ export class GenForm2PDF extends LitElement {
 
         // const event = new CustomEvent('generate-pdf', args);
         // this.dispatchEvent(event);
-        
+
         await this._generatePDF();
 
-        await new Promise(resolve => setTimeout(resolve, 10));
-        
-        // while (event.detail.result !== 'success') {
-        //     await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
-        // }
-
+        await new Promise((r) => setTimeout(r, 10));
+                
         //this.dirtyText = new Date().toISOString();
-
+        
     }
 
     //# For this compoent.
@@ -248,9 +247,10 @@ export class GenForm2PDF extends LitElement {
             //filename: 'my-file.pdf',
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
-                //scale: 2, 
-                //width: cloneElement.clientWidth || cloneElement.offsetWidth || 900,
-                //height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
+                //scale: 2,
+                scale: 1, 
+                width: cloneElement.clientWidth || cloneElement.offsetWidth || 900,
+                height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
                 ignoreElements: (el) => {
                     //console.log("ignoreElements", el);
                     //if (el.classList.contains('nx-form')) return true;
@@ -267,6 +267,7 @@ export class GenForm2PDF extends LitElement {
             jsPDF: { 
                 //unit: 'in', 
                 //format: 'a4',
+                unit: 'px',
                 format: [
                     cloneElement.clientWidth || cloneElement.offsetWidth || 900,
                     cloneElement.clientHeight || cloneElement.offsetHeight || 1200
@@ -292,7 +293,7 @@ export class GenForm2PDF extends LitElement {
         let tempValue = {
             contentLength: pdfData.length,
             content: pdfData,
-            fileName: (this.inputFileNamePrefix || "") + "_" + (this.inputFileNameSubfix || "") + "_" + new Date().toISOString().replace(/[\-:.]/g, '') + ".pdf"
+            fileName: (this.inputFileNamePrefix || "") + "_" + (this.inputFileNameSubfix || "") + "_" + this._runStartTime.replace(/[\-:.]/g, '') + ".pdf"
         };
 
         console.log(tempValue);
@@ -326,9 +327,14 @@ export class GenForm2PDF extends LitElement {
         const event = new CustomEvent('ntx-value-change', args);
         this.dispatchEvent(event);
 
-        //while (event.detail.result !== 'success') {
-        //    await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
-        //}
+        while (event.detail.result !== 'success') {
+            await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
+        }
+
+        // while (this.value == null) {
+        //     await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
+        // }
+
     }
 
     static getMetaConfig() {

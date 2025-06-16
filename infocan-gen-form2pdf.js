@@ -47,7 +47,7 @@ export class GenForm2PDF extends LitElement {
             this.inputFileNamePrefix = '';
             this.inputFileNameSubfix = '';
 
-            this._runStartTime = new Date().toISOString();
+            this._runStartTime = new Date();
         }
 
     }
@@ -92,13 +92,12 @@ export class GenForm2PDF extends LitElement {
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
 
         console.log("firstUpdated");
-        this._runStartTime = new Date().toISOString();
+        //this._runStartTime = new Date();
         
         GenForm2PDF.loadCustomLibrarys();
         
         await new Promise((r) => setTimeout(r, 0));
         this.addEventListener('generate-pdf', this._generatePDF);
-
 
         let $btn_submit = document.querySelector('button[data-e2e="btn-submit"]');
         if ($btn_submit != null) {
@@ -277,7 +276,8 @@ export class GenForm2PDF extends LitElement {
             //useCORS: true
         };
 
-        cloneElement.querySelector("infocan-gen-form2pdf")?.remove();
+
+        //cloneElement.querySelector("infocan-gen-form2pdf")?.remove();
         let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf().then(function(pdf) { return btoa(pdf); }, function() { return ''; }); 
         //let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('blob'); //datauri
         //let pdfData = await html2pdf().set(opt).from(cloneElement).outputPdf('datauristring');
@@ -292,8 +292,8 @@ export class GenForm2PDF extends LitElement {
         
         let tempValue = {
             contentLength: pdfData.length,
+            fileName: (this.inputFileNamePrefix || "") + "_" + (this.inputFileNameSubfix || "") + "_" + this._runStartTime.toISOString().replace(/[\-:.]/g, '') + ".pdf",
             content: pdfData,
-            fileName: (this.inputFileNamePrefix || "") + "_" + (this.inputFileNameSubfix || "") + "_" + this._runStartTime.replace(/[\-:.]/g, '') + ".pdf"
         };
 
         console.log(tempValue);
@@ -327,7 +327,9 @@ export class GenForm2PDF extends LitElement {
         const event = new CustomEvent('ntx-value-change', args);
         this.dispatchEvent(event);
 
-        while ((event.detail == null ? '' : event.detail.content) !== (this.value == null ? '' : this.value.content)) {
+        while (
+            (event.detail == null ? '' : event.detail.content) !== (this.value == null ? '' : this.value.content)            
+        ) {
             await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
         }
 

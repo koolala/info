@@ -7,15 +7,21 @@
     let sitePath = _spPageContextInfo.webAbsoluteUrl;
     if (sitePath === undefined || sitePath === null || sitePath === "") return;
 
-    async function fetchWithRetry(url, options, retries = 3, delay = 1000) {
+    async function fetchWithRetry(url, options, retries = 3, delay = 1000, extend = 1000, fnCheck) {
         try {
             const response = await fetch(url, options);
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
+            if (fnCheck && (await fnCheck(response))==false) {
+                throw new Error('Invalid result');
+            } 
             return response;
         } catch (error) {
             if (retries > 0) {
+                if (delay < 2000) delay = 2000;
+                if (retries < 10 && delay < 30000 && extend < 20000) delay += extend;
+
                 await new Promise((resolve) => setTimeout(resolve, delay));
                 return fetchWithRetry(url, options, retries - 1, delay);
             } else {
@@ -24,22 +30,24 @@
         }
     }
 
-    async function getPdfBase64(itemId, listTitle) {
-        if (!(itemId && listTitle)) return;
+    async function __checkPdfBase64Result(response) {
+        // if (!response.ok) {
+        //     throw new Error(`HTTP error! Status: ${response.status}`);
+        // }
+        const item = await response.clone().json();
 
-        var response = await fetchWithRetry(sitePath + "/_api/web/lists/getByTitle('"+listTitle+"')/items("+itemId+")?$select=GeneratedPDFUrl,GeneratedPDFBase64",
-        {
-            headers: {
-                "Accept": "application/json;odata=verbose",
-                "X-RequestDigest": _spPageContextInfo.formDigestValue,
-            },
-            method: "GET"
-        }, 20, 6000);
-        
+        if (item == null || item.d == null) return false;
+        if (item.d.GeneratedPDFUrl) return true;
+        if (item.d.GeneratedPDFBase64) return true
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
-        }
+        return false;
+    }
+
+    
+    async function __getPdfBase64Result(response) {
+        // if (!response.ok) {
+        //     throw new Error(`HTTP error! Status: ${response.status}`);
+        // }
         const item = await response.json();
 
         if (item == null || item.d == null) return;
@@ -48,33 +56,62 @@
             return item.d;
         }
 
-        return;
+        return null;
     }
+
+
+    async function getPdfBase64(itemId, listTitle) {
+        if (!(itemId && listTitle)) return;
+
+        try {
+            var response = await fetchWithRetry(sitePath + "/_api/web/lists/getByTitle('"+listTitle+"')/items("+itemId+")?$select=GeneratedPDFUrl,GeneratedPDFBase64",
+            {
+                headers: {
+                    "Accept": "application/json;odata=verbose",
+                    "X-RequestDigest": _spPageContextInfo.formDigestValue,
+                },
+                method: "GET"
+            }, 20, 6000, 1000, __checkPdfBase64Result);
+
+            var item = await __getPdfBase64Result(response);
+            return item;
+        }
+        catch (error) {
+            return null;
+        }
+
+    }
+
 
     async function upload(base64data, fileName) {
         if (!(base64data && base64data.startsWith("JVB"))) return;
         if (!fileName || !/^[a-zA-Z0-9_\-]{8,50}\.pdf$/.test(fileName)) return;
 
-        let arrayBuffer = await (await fetch("data:application/octet;base64," + base64data)).arrayBuffer();
-        if (arrayBuffer.byteLength === 0) return;
+        try {
+            let arrayBuffer = await (await fetch("data:application/octet;base64," + base64data)).arrayBuffer();
+            if (arrayBuffer.byteLength === 0) return;
+            
+            let response = await fetchWithRetry(sitePath + "/_api/web/getfolderbyserverrelativeurl('Shared%20Documents/Temp')/files/add(url='"+(fileName || "__.pdf")+"',overwrite=true)",
+            {
+                headers: {
+                    "Accept": "application/json;odata=verbose",
+                    "X-RequestDigest": _spPageContextInfo.formDigestValue,
+                },
+                method: "POST",
+                body: arrayBuffer
+            }, 20, 6000, 1000);
         
-        let response = await fetchWithRetry(sitePath + "/_api/web/getfolderbyserverrelativeurl('Shared%20Documents/Temp')/files/add(url='"+(fileName || "__.pdf")+"',overwrite=true)",
-        {
-            headers: {
-                "Accept": "application/json;odata=verbose",
-                "X-RequestDigest": _spPageContextInfo.formDigestValue,
-            },
-            method: "POST",
-            body: arrayBuffer
-        }, 20, 6000);
-       
 
-        if (!response.ok) {
-            throw new Error(`HTTP error! Status: ${response.status}`);
+            //if (!response.ok) {
+            //    throw new Error(`HTTP error! Status: ${response.status}`);
+            //}
+            
+            return true;
+        }
+        catch(error) {
+            return false;
         }
         //const item = await response.json();
-
-        return true;
     }
 
     console.log("Event Started");
@@ -202,6 +239,7 @@ svg:not(:root) {
         width: 100%;
         height: 100%;
         position: fixed;
+        left:0;
     }
     #ui_message .nx-task-error-container {
         height: 100%;

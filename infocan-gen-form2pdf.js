@@ -203,30 +203,35 @@ export class GenForm2PDF extends LitElement {
 
     //# For external call.
     async _onRequestGeneratePDF(e) {
+
+        //if (e) {
+        //    e.stopImmediatePropagation();
+        //}
         
         console.log(e);
+        this.dirtyText = new Date().toISOString();
         
-        // const args = {
-        //     bubbles: true,
-        //     cancelable: false,
-        //     composed: true,
-        //     // value coming from input change event. 
-        //     detail: {},
-        // };
+        await this.updateComplete;
 
-        // const event = new CustomEvent('generate-pdf', args);
-        // this.dispatchEvent(event);
+        const args = {
+            bubbles: true,
+            cancelable: false,
+            composed: true,
+            // value coming from input change event. 
+            detail: {},
+        };
+        const event = new CustomEvent('generate-pdf', args);
+        this.dispatchEvent(event);
+        
+        //await this._generatePDF();
 
-        await this._generatePDF();
-
-        await new Promise((r) => setTimeout(r, 10));
-                
-        //this.dirtyText = new Date().toISOString();
+        await new Promise((r) => setTimeout(r, 10));     
+        await this.updateComplete;
         
     }
 
     //# For this compoent.
-    async _generatePDF() {
+    async _generatePDF(e) {
         //await this.updateComplete;
         
         console.log("generatePDF");

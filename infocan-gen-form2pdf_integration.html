@@ -23,7 +23,7 @@
                 if (retries < 10 && delay < 30000 && extend < 20000) delay += extend;
 
                 await new Promise((resolve) => setTimeout(resolve, delay));
-                return fetchWithRetry(url, options, retries - 1, delay);
+                return fetchWithRetry(url, options, retries - 1, delay, extend, fnCheck);
             } else {
                 throw error;
             }
@@ -71,7 +71,7 @@
                     "X-RequestDigest": _spPageContextInfo.formDigestValue,
                 },
                 method: "GET"
-            }, 20, 6000, 1000, __checkPdfBase64Result);
+            }, 20, 8000, 1000, __checkPdfBase64Result);
 
             var item = await __getPdfBase64Result(response);
             return item;
@@ -99,7 +99,7 @@
                 },
                 method: "POST",
                 body: arrayBuffer
-            }, 20, 6000, 1000);
+            }, 20, 8000, 1000);
         
 
             //if (!response.ok) {

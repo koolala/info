@@ -327,7 +327,7 @@ export class GenForm2PDF extends LitElement {
         const event = new CustomEvent('ntx-value-change', args);
         this.dispatchEvent(event);
 
-        while (event.detail.result !== 'success') {
+        while ((event.detail == null ? '' : event.detail.content) !== (this.value == null ? '' : this.value.content)) {
             await new Promise(resolve => setTimeout(resolve, 10)); // Wait a short time
         }
 

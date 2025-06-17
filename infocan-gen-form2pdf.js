@@ -213,6 +213,8 @@ export class GenForm2PDF extends LitElement {
                 e.preventDefault();
                 e.stopPropagation();
                 e.stopImmediatePropagation();
+
+                e.returnValue = false;
             }
             else if (e.detail.rawOnly == true) {
                 //# re-trigger from our custom submit button event.
@@ -222,11 +224,11 @@ export class GenForm2PDF extends LitElement {
         }
         
         //this.dirtyText = new Date().toISOString();
-        await this.updateComplete;
+        //await this.updateComplete;
 
         const args = {
             bubbles: true,
-            cancelable: false,
+            cancelable: true,
             composed: true,
             // value coming from input change event. 
             detail: {},
@@ -276,25 +278,75 @@ export class GenForm2PDF extends LitElement {
             return;
         }
 
-        await this.updateComplete;
+        //await this.updateComplete;
         GenForm2PDF.ignoreConstructed = true;
 
         let cloneElement = document.querySelector("ntx-form-runtime > #nx-form-container > div.nx-form.form"); //.cloneNode(true);
 
+        let testDiv = this.shadowRoot.getElementById('testdiv');
+        let dpiWidth = 96;
+        let dpiHeight = 96;
+
+        if (testDiv) {
+            dpiWidth = testDiv.offsetWidth || 96;
+            dpiHeight = testDiv.offsetHeight || 96;
+        }
+
+        //box-shadow: none !important;
+        const $form = document.querySelector("div.nx-theme-form");
+        let form_originalStyle = "";
+
+        if ($form != null) {
+            form_originalStyle = $form.getAttribute("style") || "";
+            $form.setAttribute("style", form_originalStyle + ";box-shadow: none !important;background-image: none; margin:0 !important;");
+        }
+
+        const tempBodyStyle = document.body.getAttribute("style") || "";
+        let cloneElementWidth = cloneElement.offsetWidth;
+        let cloneElementHeight = cloneElement.offsetHeight;
+        let cloneElementLeft = cloneElement.offsetLeft;
+        let cloneElementTop = cloneElement.offsetTop;
+        
+        if (cloneElementWidth < 900) {
+            document.body.setAttribute("style", tempBodyStyle + ";width: 1280px !important;");
+            cloneElementWidth = cloneElement.offsetWidth;
+            cloneElementHeight = cloneElement.offsetHeight;
+            cloneElementLeft = cloneElement.offsetLeft;
+            cloneElementTop = cloneElement.offsetTop;
+            document.body.setAttribute("style", tempBodyStyle + "");
+        }
+
+
         //parseInt(this.margin) || 
         let opt = {
-            margin: 0,
+            margin: 5,
             //filename: 'my-file.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
+            image: { type: 'jpeg', quality: 0.98, margin: 0 },
+            //html2canvas: { scale: 2, dpi: this.paper.dpiHeight, logging: true, scrollX: 0, scrollY: -window.scrollY },
+    
             html2canvas: { 
-                //scale: 2,
-                scale: 1,
-                x: 0,
-                y: 0, 
-                width: 900, // cloneElement.clientWidth || cloneElement.offsetWidth || 900,
-                windowWidth: 900,
+                //scale: 1,
+                //scale: 600 / (cloneElementWidth),
+                scale: 2,
+                //dpi: dpiHeight,
+                dpi: 150,
+                //dpi: 150,
+                //# If windowWidth < 900
+                //x: (900 * 0.25) / 2,
+                x: (1280 - 900) / 2 + 5,
+                //y: -10,
+                y: 0,
+                //width: 900 * 0.75,
+                width: cloneElementWidth,
+                //height: cloneElementHeight * 0.75 + 20,
+                height: cloneElementHeight + 20,
+                windowWidth: 1280,
+                //windowWidth: 900,
                 //height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
                 margin: 0,
+                logging: true, 
+                scrollX: -window.scrollX, 
+                scrollY: -window.scrollY,
                 ignoreElements: (el) => {
                     //console.log("ignoreElements", el);
                     //if (el.classList.contains('nx-form')) return true;
@@ -313,12 +365,15 @@ export class GenForm2PDF extends LitElement {
                 //format: 'a4',
                 //unit: 'in',
                 format: [
-                    //(cloneElement.clientWidth || cloneElement.offsetWidth || 900) * 1 / 96,
-                    900 * 72/96 + 0.4,
-                    //(cloneElement.clientHeight || cloneElement.offsetHeight || 1200) * 1 / 96
-                    (cloneElement.clientHeight) * (900/cloneElement.clientWidth) * 72/96 + 0.4
+                    //900 * 0.75, //cloneElementWidth,
+                    cloneElementWidth,
+                    //cloneElementHeight * ( 900 / cloneElementWidth) * 0.75 + 100
+                    (cloneElementHeight + 50)
                 ], 
-                orientation: 'portrait'
+                orientation: 'portrait',
+                putOnlyUsedFonts: true, 
+                precision: 1,
+                unit: "px"
              },
             //useCORS: true
         };
@@ -335,6 +390,8 @@ export class GenForm2PDF extends LitElement {
 
         //let pdf = await html2pdf().set(opt).from(element).outputPdf();
 
+        if ($form!=null) $form.setAttribute("style", form_originalStyle + "");
+
         console.log("PDF generated");
         
         let tempValue = {
@@ -350,18 +407,13 @@ export class GenForm2PDF extends LitElement {
             data: tempValue
         });
 
-
-        // if (e) {
-        //     e.detail = tempValue;
-        // }
+        GenForm2PDF.ignoreConstructed = false;
+        //await this.updateComplete;
 
         //# 
-        if (false) {
+        if (window.isDebugMode) {
             GenForm2PDF.downloadAsPDF(pdfData);
         }
-
-        GenForm2PDF.ignoreConstructed = false;
-        await this.updateComplete;
 
         return true;
     }
@@ -379,11 +431,12 @@ export class GenForm2PDF extends LitElement {
         const event = new CustomEvent('ntx-value-change', args);
         this.dispatchEvent(event);
 
-        while (
-            (event.detail == null ? '' : event.detail.content) !== (this.value == null ? '' : this.value.content)            
-        ) {
-            await new Promise(r => setTimeout(r, 10)); // Wait a short time
-        }
+        
+        // while (
+        //     (event.detail == null ? '' : event.detail.content) !== (this.value == null ? '' : this.value.content)            
+        // ) {
+        //     await new Promise(r => setTimeout(r, 10)); // Wait a short time
+        // }
 
     }
 
@@ -465,9 +518,13 @@ export class GenForm2PDF extends LitElement {
     }
 
     render() {
-        return html``;
+        return html`<div id='testdiv' style='height: 1in; left: -100%; position: fixed; top: -100%; width: 1in;'></div>`;
     }
 }
 
 const elementName = 'infocan-gen-form2pdf';
 customElements.define(elementName, GenForm2PDF);
+
+if (window.isDebugMode) {
+    window.GenForm2PDF = window.GenForm2PDF || GenForm2PDF;
+}

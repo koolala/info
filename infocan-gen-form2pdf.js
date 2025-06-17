@@ -87,6 +87,7 @@ export class GenForm2PDF extends LitElement {
     //     return root;
     // }
 
+
     async firstUpdated() {
         
         if (GenForm2PDF.ignoreConstructed || this._ignore) return;
@@ -206,9 +207,11 @@ export class GenForm2PDF extends LitElement {
 
         if (e) {
             console.log(e);
-            if (e.detail == null) {
+            //# Magic code..
+            if (e.detail == null || e.detail === 1) {
                 //# Cancel original submit button event
                 e.preventDefault();
+                e.stopPropagation();
                 e.stopImmediatePropagation();
             }
             else if (e.detail.rawOnly == true) {
@@ -229,16 +232,24 @@ export class GenForm2PDF extends LitElement {
             detail: {},
         };
 
-        //const event = new CustomEvent('generate-pdf', args);
-        //this.dispatchEvent(event);
-        await this._generatePDF();
+        const event = new CustomEvent('generate-pdf', args);
+        this.dispatchEvent(event);
+        
+        //await this._generatePDF();
+
+        // while (
+        //     (event.detail == null ? '' : event.detail.content) !== (this.value == null ? '' : this.value.content)
+        // ) {
+        //     await new Promise(r => setTimeout(r, 10)); // Wait a short time
+        // }
+
+        //# Give more time for pdf generation.
+        await new Promise((r) => setTimeout(r, 1000));
+        //await this.updateComplete;
 
 
-        await new Promise((r) => setTimeout(r, 10));     
-        await this.updateComplete;
-
-
-        if (e && e.target && e.detail) {
+        //# Magic Code
+        if (e && e.target && e.detail.rawOnly == null) {
             //# Run original
             let args = {
                 bubbles: true,
@@ -247,11 +258,12 @@ export class GenForm2PDF extends LitElement {
                 // value coming from input change event. 
                 detail: { rawOnly: true },
             };
+
             let event = new CustomEvent('click', args);
             e.target.dispatchEvent(event);
-            return false;
         }        
         
+        return false;
     }
 
     //# For this compoent.
@@ -267,7 +279,7 @@ export class GenForm2PDF extends LitElement {
         await this.updateComplete;
         GenForm2PDF.ignoreConstructed = true;
 
-        let cloneElement = document.querySelector("div.nx-form.form"); //.cloneNode(true);
+        let cloneElement = document.querySelector("ntx-form-runtime > #nx-form-container > div.nx-form.form"); //.cloneNode(true);
 
         //parseInt(this.margin) || 
         let opt = {
@@ -276,9 +288,13 @@ export class GenForm2PDF extends LitElement {
             image: { type: 'jpeg', quality: 0.98 },
             html2canvas: { 
                 //scale: 2,
-                scale: 2, 
-                width: cloneElement.clientWidth || cloneElement.offsetWidth || 900,
-                height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
+                scale: 1,
+                x: 0,
+                y: 0, 
+                width: 900, // cloneElement.clientWidth || cloneElement.offsetWidth || 900,
+                windowWidth: 900,
+                //height: cloneElement.clientHeight || cloneElement.offsetHeight || 1200,
+                margin: 0,
                 ignoreElements: (el) => {
                     //console.log("ignoreElements", el);
                     //if (el.classList.contains('nx-form')) return true;
@@ -295,10 +311,12 @@ export class GenForm2PDF extends LitElement {
             jsPDF: { 
                 //unit: 'in', 
                 //format: 'a4',
-                unit: 'in',
+                //unit: 'in',
                 format: [
-                    (cloneElement.clientWidth || cloneElement.offsetWidth || 900) * 2 / 96,
-                    (cloneElement.clientHeight || cloneElement.offsetHeight || 1200) * 2 / 96
+                    //(cloneElement.clientWidth || cloneElement.offsetWidth || 900) * 1 / 96,
+                    900 * 72/96 + 0.4,
+                    //(cloneElement.clientHeight || cloneElement.offsetHeight || 1200) * 1 / 96
+                    (cloneElement.clientHeight) * (900/cloneElement.clientWidth) * 72/96 + 0.4
                 ], 
                 orientation: 'portrait'
              },
@@ -331,6 +349,11 @@ export class GenForm2PDF extends LitElement {
         await this._handleChange({
             data: tempValue
         });
+
+
+        // if (e) {
+        //     e.detail = tempValue;
+        // }
 
         //# 
         if (false) {

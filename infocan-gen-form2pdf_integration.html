@@ -114,9 +114,21 @@
         //const item = await response.json();
     }
 
+    const beforeUnloadHandler = (event) => {
+        // Recommended
+        event.preventDefault();
+
+        // Included for legacy support, e.g. Chrome/Edge < 119
+        event.returnValue = true;
+    };
+
+
     console.log("Event Started");
     const urlParams = new URLSearchParams(window.location.search);
 
+
+    window.addEventListener("beforeunload", beforeUnloadHandler);
+    
     const item = await getPdfBase64(urlParams.get("itemId"), urlParams.get("listTitle"));
     let done = false;
 
@@ -136,6 +148,9 @@
             $ui_message.classList.toggle("success", true);
         }
     }
+
+    window.removeEventListener("beforeunload", beforeUnloadHandler);
+
 
 })();
 </script>

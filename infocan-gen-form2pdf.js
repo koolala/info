@@ -105,6 +105,12 @@ export class GenForm2PDF extends LitElement {
             $btn_submit.removeEventListener('click', this._onRequestGeneratePDF.bind(this), true);
             $btn_submit.addEventListener('click', this._onRequestGeneratePDF.bind(this), true);
         }
+        // let $formRunTime = document.querySelector("ntx-form-runtime");
+        // if ($formRunTime!=null) {
+        //     $formRunTime.removeEventListener('formStateSubmitted', this._onRequestGeneratePDF.bind(this), true);
+        //     $formRunTime.addEventListener('formStateSubmitted', this._onRequestGeneratePDF.bind(this), true);
+        // }
+
     }
 
 
@@ -238,7 +244,6 @@ export class GenForm2PDF extends LitElement {
         this.dispatchEvent(event);
         
         //await this._generatePDF();
-
         // while (
         //     (event.detail == null ? '' : event.detail.content) !== (this.value == null ? '' : this.value.content)
         // ) {
@@ -250,20 +255,23 @@ export class GenForm2PDF extends LitElement {
         //await this.updateComplete;
 
 
-        //# Magic Code
-        if (e && e.target && e.detail.rawOnly == null) {
-            //# Run original
-            let args = {
-                bubbles: true,
-                cancelable: false,
-                composed: true,
-                // value coming from input change event. 
-                detail: { rawOnly: true },
-            };
+        if (this.value && this.value.fileName && this.value.content) {
+     
+            //# Magic Code
+            if (e && e.target && e.detail.rawOnly == null) {
+                //# Run original
+                let args = {
+                    bubbles: true,
+                    cancelable: false,
+                    composed: true,
+                    // value coming from input change event. 
+                    detail: { rawOnly: true },
+                };
 
-            let event = new CustomEvent('click', args);
-            e.target.dispatchEvent(event);
-        }        
+                let event = new CustomEvent('click', args);
+                e.target.dispatchEvent(event);
+            }
+        }
         
         return false;
     }
@@ -280,7 +288,6 @@ export class GenForm2PDF extends LitElement {
 
         //await this.updateComplete;
         GenForm2PDF.ignoreConstructed = true;
-
         let cloneElement = document.querySelector("ntx-form-runtime > #nx-form-container > div.nx-form.form"); //.cloneNode(true);
 
         let testDiv = this.shadowRoot.getElementById('testdiv');
@@ -315,6 +322,32 @@ export class GenForm2PDF extends LitElement {
             cloneElementTop = cloneElement.offsetTop;
             document.body.setAttribute("style", tempBodyStyle + "");
         }
+
+        
+        cloneElement.querySelectorAll("ntx-simple-multilinetext").forEach(function($e) {          
+            
+            let $textarea = $e.querySelector("textarea");
+            if ($textarea == null || $textarea.value == '') return;
+            
+            let $textareaPrintArea = $e.querySelector("div.print-area");
+            if ($textareaPrintArea == null && $textarea.classList.contains("d-print-none")==false) {
+                $textareaPrintArea = document.createElement("div");
+                $textareaPrintArea.setAttribute("contenteditable", "true");
+                $textareaPrintArea.setAttribute("readonly", "true");
+                
+                $textareaPrintArea.classList.add(...$textarea.classList, "print-area");
+                $e.appendChild($textareaPrintArea);
+                
+                $textarea.classList.add("d-print-none");
+            }
+
+            if ($textareaPrintArea != null) {
+                $textareaPrintArea.setAttribute("style", $textarea.getAttribute("style") + ";white-space: pre-wrap;");
+                $textareaPrintArea.textContent = $textarea.value;
+                $textareaPrintArea.removeAttribute("hidden");                
+            }
+
+        });
 
 
         //parseInt(this.margin) || 
@@ -392,6 +425,12 @@ export class GenForm2PDF extends LitElement {
 
         if ($form!=null) $form.setAttribute("style", form_originalStyle + "");
 
+        cloneElement.querySelectorAll("ntx-simple-multilinetext .print-area").forEach(function($e) {
+           if ($e) {
+               $e.setAttribute("hidden", "");
+           }
+        });
+        
         console.log("PDF generated");
         
         let tempValue = {

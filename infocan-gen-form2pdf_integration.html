@@ -91,7 +91,7 @@
             let arrayBuffer = await (await fetch("data:application/octet;base64," + base64data)).arrayBuffer();
             if (arrayBuffer.byteLength === 0) return;
             
-            let response = await fetchWithRetry(sitePath + "/_api/web/getfolderbyserverrelativeurl('Shared%20Documents/Temp')/files/add(url='"+(fileName || "__.pdf")+"',overwrite=true)",
+            let response = await fetchWithRetry(sitePath + "/_api/web/getfolderbyserverrelativeurl('Shared%20Documents/Temp')/files/add(url='"+(fileName)+"',overwrite=true)",
             {
                 headers: {
                     "Accept": "application/json;odata=verbose",
@@ -99,8 +99,9 @@
                 },
                 method: "POST",
                 body: arrayBuffer
-            }, 20, 8000, 1000);
+            }, 5, 8000, 1000);
         
+            console.log(response);
 
             //if (!response.ok) {
             //    throw new Error(`HTTP error! Status: ${response.status}`);
@@ -120,6 +121,8 @@
 
         // Included for legacy support, e.g. Chrome/Edge < 119
         event.returnValue = true;
+
+        return false;
     };
 
 
@@ -134,7 +137,7 @@
 
     if (!item) {
     }
-    else if (item.GeneratedPDFUrl) {
+    else if (item.GeneratedPDFUrl && /^(https:\\)?.+\.pdf$/i.test.test(item.GeneratedPDFUrl)) {
         done = true;
     }
     else if (item.GeneratedPDFBase64) {

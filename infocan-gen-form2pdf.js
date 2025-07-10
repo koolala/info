@@ -362,7 +362,7 @@ export class GenForm2PDF extends LitElement {
                 //scale: 600 / (cloneElementWidth),
                 scale: 2,
                 //dpi: dpiHeight,
-                dpi: 150,
+                dpi: 72,
                 //dpi: 150,
                 //# If windowWidth < 900
                 //x: (900 * 0.25) / 2,
